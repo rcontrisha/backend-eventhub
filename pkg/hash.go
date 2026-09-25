@@ -30,6 +30,16 @@ func NewHashConfig(memory, time, keylen, saltlen uint32, threads uint8) *HashCon
 	}
 }
 
+func NewRecommendedHashConfig() *HashConfig {
+	return &HashConfig{
+		memory:  64 * 1024,
+		time:    2,
+		threads: 2,
+		keyLen:  32,
+		saltLen: 16,
+	}
+}
+
 func (h *HashConfig) GenHash(password string) string {
 	salt := h.genSalt()
 	hash := argon2.IDKey([]byte(password), salt, h.time, h.memory, h.threads, h.keyLen)

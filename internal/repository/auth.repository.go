@@ -12,17 +12,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type UserRepo struct {
+type AuthRepo struct {
 	db *pgxpool.Pool
 }
 
-func NewUserRepo(db *pgxpool.Pool) *UserRepo {
-	return &UserRepo{
+func NewAuthRepo(db *pgxpool.Pool) *AuthRepo {
+	return &AuthRepo{
 		db: db,
 	}
 }
 
-func (u *UserRepo) LoginRepo(ctx context.Context, email string) (model.User, error) {
+func (u *AuthRepo) LoginRepo(ctx context.Context, email string) (model.User, error) {
 	log.Printf("Payload - Repo: %s", email)
 	sql := "SELECT id, email, password, name, avatar_url, location, bio, role FROM users WHERE email=$1"
 	log.Printf("Query: %s", sql)

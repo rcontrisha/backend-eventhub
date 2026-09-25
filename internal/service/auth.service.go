@@ -11,17 +11,17 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type UserService struct {
-	repo *repository.UserRepo
+type AuthService struct {
+	repo *repository.AuthRepo
 }
 
-func NewUserService(repo *repository.UserRepo) *UserService {
-	return &UserService{
+func NewAuthService(repo *repository.AuthRepo) *AuthService {
+	return &AuthService{
 		repo: repo,
 	}
 }
 
-func (u *UserService) LoginService(ctx context.Context, payload dto.LoginRequest) (string, error) {
+func (u *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (string, error) {
 	log.Printf("Payload - Service: %s", payload)
 	result, err := u.repo.LoginRepo(ctx, payload.Email)
 	if err != nil {

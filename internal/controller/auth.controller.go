@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-type UserController struct {
-	service service.UserService
+type AuthController struct {
+	service service.AuthService
 }
 
-func NewUserController(service *service.UserService) *UserController {
-	return &UserController{
+func NewAuthController(service *service.AuthService) *AuthController {
+	return &AuthController{
 		service: *service,
 	}
 }
 
-func (u *UserController) LoginController(ctx *gin.Context) {
+func (u *AuthController) LoginController(ctx *gin.Context) {
 	var payload dto.LoginRequest
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
 		log.Println("error", e.Error())

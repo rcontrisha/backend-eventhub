@@ -30,19 +30,23 @@ func (u *AuthController) LoginController(ctx *gin.Context) {
 		return
 	}
 
-	user, err := u.service.LoginService(ctx.Request.Context(), payload)
+	user, token, err := u.service.LoginService(ctx.Request.Context(), payload)
 	if err != nil {
 		log.Println("Error: ", err.Error())
-		ctx.JSON(401, gin.H{
-			"success": false,
-			"message": "Login Failed. Invalid email or password.",
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Login Failed. Invalid email or password.",
+			Data:    gin.H{},
 		})
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"success": true,
-		"data":    user,
-		"message": "Login Success.",
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Login Success.",
+		Data: gin.H{
+			"token": token,
+			"user":  user,
+		},
 	})
 }

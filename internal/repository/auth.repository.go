@@ -3,7 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"log"
+
+	// "log"
 
 	// "rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/model"
@@ -23,9 +24,7 @@ func NewAuthRepo(db *pgxpool.Pool) *AuthRepo {
 }
 
 func (u *AuthRepo) LoginRepo(ctx context.Context, email string) (model.User, error) {
-	log.Printf("Payload - Repo: %s", email)
 	sql := "SELECT id, email, password, name, avatar_url, location, bio, role FROM users WHERE email=$1"
-	log.Printf("Query: %s", sql)
 
 	var user model.User
 
@@ -42,14 +41,11 @@ func (u *AuthRepo) LoginRepo(ctx context.Context, email string) (model.User, err
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			log.Printf("LoginRepo: user not found for email %s", email)
 			return model.User{}, err
 		}
 
-		log.Printf("LoginRepo database error: %v", err)
 		return model.User{}, err
 	}
 
-	log.Printf("Users - Repo: %+v", user)
 	return user, nil
 }

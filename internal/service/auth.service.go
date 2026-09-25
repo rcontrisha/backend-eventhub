@@ -21,33 +21,32 @@ func NewAuthService(repo *repository.AuthRepo) *AuthService {
 	}
 }
 
-func (u *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (string, error) {
+func (u *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (dto.LoginResponse, string, error) {
 	log.Printf("Payload - Service: %s", payload)
 	result, err := u.repo.LoginRepo(ctx, payload.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", errors.New("Incorrect Email or Password.	")
+			return dto.LoginResponse{}, "", errors.New("Incorrect Email or Password.	")
 		}
-		return "", err
+		return dto.LoginResponse{}, "", err
 	}
 	log.Printf("Result - Service: %s", result)
 
-	// response := dto.LoginResponse{
-	// 	Id:        result.Id,
-	// 	Email:     result.Email,
-	// 	Name:      result.Name,
-	// 	AvatarUrl: result.AvatarUrl,
-	// 	Location:  result.Location,
-	// 	Bio:       result.Bio,
-	// 	Role:      result.Role,
-	// }
+	user := dto.LoginResponse{
+		Id:        result.Id,
+		Email:     result.Email,
+		Name:      result.Name,
+		AvatarUrl: result.AvatarUrl,
+		Role:      result.Role,
+	}
 
 	log.Printf("Payload Password: %s\nDB Password: %s", payload.Password, result.Password)
 	if err := pkg.Compare(payload.Password, result.Password); err != nil {
-		return "", err
+		return dto.LoginResponse{}, "", err
 	}
 
 	claims := pkg.NewJWTClaims(result.Id, result.Email, result.Name, result.AvatarUrl, result.Location, result.Bio, result.Role)
+	token, err := claims.GenToken()
 
-	return claims.GenToken()
+	return user, token, nil
 }

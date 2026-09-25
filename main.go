@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"rcontrisha/backend-eventhub/internal/config"
+	"rcontrisha/backend-eventhub/internal/router"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,5 +33,8 @@ func main() {
 	log.Println("Database is ready")
 
 	r := gin.Default()
+
+	router.MainRouter(r, pool)
+
 	r.Run(fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")))
 }

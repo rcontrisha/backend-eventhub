@@ -23,19 +23,17 @@ func NewAuthRepo(db *pgxpool.Pool) *AuthRepo {
 	}
 }
 
-func (u *AuthRepo) LoginRepo(ctx context.Context, email string) (model.User, error) {
-	sql := "SELECT id, email, password, name, avatar_url, location, bio, role FROM users WHERE email=$1"
+func (a *AuthRepo) FindAccount(ctx context.Context, email string) (model.User, error) {
+	sql := "SELECT id, email, password, name, avatar_url, role FROM users WHERE email=$1"
 
 	var user model.User
 
-	err := u.db.QueryRow(ctx, sql, email).Scan(
+	err := a.db.QueryRow(ctx, sql, email).Scan(
 		&user.Id,
 		&user.Email,
 		&user.Password,
 		&user.Name,
 		&user.AvatarUrl,
-		&user.Location,
-		&user.Bio,
 		&user.Role,
 	)
 
@@ -48,4 +46,20 @@ func (u *AuthRepo) LoginRepo(ctx context.Context, email string) (model.User, err
 	}
 
 	return user, nil
+}
+
+func (a *AuthRepo) CreateNewUser(ctx context.Context, payload model.User) error {
+	sql := "INSERT INTO users (name, email, password, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())"
+	args := []any{payload.Name, payload.Email, payload.Password}
+	cmd, err := a.db.Exec(ctx, sql, args...)
+
+	if err != nil {
+		return err
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return errors.New("No Row(s) Affected")
+	}
+
+	return nil
 }

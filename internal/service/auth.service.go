@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"rcontrisha/backend-eventhub/internal/dto"
+	"rcontrisha/backend-eventhub/internal/model"
 	"rcontrisha/backend-eventhub/internal/repository"
 	"rcontrisha/backend-eventhub/pkg"
 
@@ -21,9 +22,9 @@ func NewAuthService(repo *repository.AuthRepo) *AuthService {
 	}
 }
 
-func (u *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (dto.LoginResponse, string, error) {
+func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (dto.LoginResponse, string, error) {
 	log.Printf("Payload - Service: %s", payload)
-	result, err := u.repo.LoginRepo(ctx, payload.Email)
+	result, err := a.repo.FindAccount(ctx, payload.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return dto.LoginResponse{}, "", errors.New("Incorrect Email or Password.	")
@@ -49,4 +50,26 @@ func (u *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest
 	token, err := claims.GenToken()
 
 	return user, token, nil
+}
+
+func (a *AuthService) RegisterService(ctx context.Context, payload dto.RegisterRequest) error {
+	_, err := a.repo.FindAccount(ctx, payload.Email)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	if err == nil {
+		return errors.New("User Already Exist.")
+	}
+
+	hashedPwd := pkg.NewRecommendedHashConfig().GenHash(payload.Password)
+
+	if err := a.repo.CreateNewUser(ctx, model.User{
+		Name:     payload.Name,
+		Email:    payload.Email,
+		Password: hashedPwd,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }

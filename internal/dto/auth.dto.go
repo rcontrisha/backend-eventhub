@@ -12,3 +12,9 @@ type LoginResponse struct {
 	AvatarUrl *string `json:"avatar_url"`
 	Role      string  `json:"role"`
 }
+
+type RegisterRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

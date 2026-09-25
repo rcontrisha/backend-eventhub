@@ -20,6 +20,7 @@ func UserRouter(r *gin.Engine, db *pgxpool.Pool) {
 	controller := controller.NewAuthController(service)
 
 	authRouter.POST("/login", controller.LoginController)
+	authRouter.POST("/register", controller.RegisterController)
 
 	authRouter.POST("pwd", func(ctx *gin.Context) {
 		type body struct {

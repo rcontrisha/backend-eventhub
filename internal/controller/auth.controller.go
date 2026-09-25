@@ -19,7 +19,7 @@ func NewAuthController(service *service.AuthService) *AuthController {
 	}
 }
 
-func (u *AuthController) LoginController(ctx *gin.Context) {
+func (a *AuthController) LoginController(ctx *gin.Context) {
 	var payload dto.LoginRequest
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
 		log.Println("error", e.Error())
@@ -30,7 +30,7 @@ func (u *AuthController) LoginController(ctx *gin.Context) {
 		return
 	}
 
-	user, token, err := u.service.LoginService(ctx.Request.Context(), payload)
+	user, token, err := a.service.LoginService(ctx.Request.Context(), payload)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		ctx.JSON(401, dto.Response{
@@ -48,5 +48,33 @@ func (u *AuthController) LoginController(ctx *gin.Context) {
 			"token": token,
 			"user":  user,
 		},
+	})
+}
+
+func (a *AuthController) RegisterController(ctx *gin.Context) {
+	var payload dto.RegisterRequest
+	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
+		log.Println("Error: ", e.Error())
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: e.Error(),
+			Data:    gin.H{},
+		})
+		return
+	}
+
+	if err := a.service.RegisterService(ctx.Request.Context(), payload); err != nil {
+		log.Println("Error: ", err.Error())
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: err.Error(),
+			Data:    gin.H{},
+		})
+		return
+	}
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Success Create New User.",
+		Data:    gin.H{},
 	})
 }

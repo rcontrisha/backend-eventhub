@@ -78,3 +78,8 @@ type EventDetailResponse struct {
 	CreatedAt         time.Time               `json:"created_at"`
 	UpdatedAt         time.Time               `json:"updated_at"`
 }
+
+type JoinOrLeaveEventResponse struct {
+	EventId string `json:"event_id"`
+	Status string `json:"status"`
+}

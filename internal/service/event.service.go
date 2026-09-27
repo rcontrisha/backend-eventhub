@@ -102,3 +102,22 @@ func (e *EventService) GetEventDetail(ctx context.Context, id string) (*dto.Even
 
 	return &response, nil
 }
+
+func (e *EventService) JoinOrLeaveEvent(ctx context.Context, eventId string, userId string) (string, error) {
+	joined, err := e.repo.IsJoined(ctx, eventId, userId)
+	if err != nil {
+		return "", err
+	}
+
+	if !joined {
+		if err := e.repo.JoinEvent(ctx, eventId, userId); err != nil {
+			return "", err
+		}
+		return "joined", nil
+	}
+
+	if err := e.repo.LeaveEvent(ctx, eventId, userId); err != nil {
+		return "", err
+	}
+	return "left", nil
+}

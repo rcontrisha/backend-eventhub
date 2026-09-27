@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/model"
 	"strings"
@@ -218,4 +219,42 @@ func (e *EventRepo) GetEventDetail(ctx context.Context, id string) (*model.Event
 	}
 
 	return &res, nil
+}
+
+func (e *EventRepo) IsJoined(ctx context.Context, eventId string, userId string) (bool, error) {
+	log.Println(userId)
+	log.Println(eventId)
+	query := `SELECT EXISTS(SELECT 1 FROM event_participants WHERE event_id = $1 AND user_id = $2)`
+	var exists bool
+	if err := e.db.QueryRow(ctx, query, eventId, userId).Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (e *EventRepo) JoinEvent(ctx context.Context, eventId string, userId string) error {
+	query := `
+		INSERT INTO event_participants (event_id, user_id) 
+		VALUES ($1, $2)
+	`
+	cmd, err := e.db.Exec(ctx, query, eventId, userId)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("user already joined or event not found")
+	}
+	return nil
+}
+
+func (e *EventRepo) LeaveEvent(ctx context.Context, eventId string, userId string) error {
+	query := `DELETE FROM event_participants WHERE event_id = $1 AND user_id = $2`
+	cmd, err := e.db.Exec(ctx, query, eventId, userId)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("user is not participating in this event")
+	}
+	return nil
 }

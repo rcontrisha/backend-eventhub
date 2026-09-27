@@ -46,7 +46,7 @@ func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest
 		return dto.LoginResponse{}, "", err
 	}
 
-	claims := pkg.NewJWTClaims(result.Id, result.Email, result.Name, result.AvatarUrl, result.Location, result.Bio, result.Role)
+	claims := pkg.NewJWTClaims(result.Id, result.Email, result.Name, result.AvatarUrl, result.Role)
 	token, err := claims.GenToken()
 
 	return user, token, nil

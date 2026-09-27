@@ -13,20 +13,16 @@ type JWTClaims struct {
 	Email     string  `json:"email"`
 	Name      string  `json:"name"`
 	AvatarUrl *string `json:"avatar_url"`
-	Location  *string `json:"location"`
-	Bio       *string `json:"bio"`
 	Role      string  `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func NewJWTClaims(id, email, name string, avatar_url, location, bio *string, role string) *JWTClaims {
+func NewJWTClaims(id, email, name string, avatar_url *string, role string) *JWTClaims {
 	return &JWTClaims{
 		Id:        id,
 		Email:     email,
 		Name:      name,
 		AvatarUrl: avatar_url,
-		Location:  location,
-		Bio:       bio,
 		Role:      role,
 		Issuer:    os.Getenv("JWT_ISSUER"),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),

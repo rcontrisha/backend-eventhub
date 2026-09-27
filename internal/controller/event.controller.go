@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
+	"rcontrisha/backend-eventhub/pkg"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,7 +56,6 @@ func (e *EventController) GetAllEvents(ctx *gin.Context) {
 func (e *EventController) GetEventDetail(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 
-	// Bind URI param (contoh: /events/:id)
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.Response{
 			Status:  "error",
@@ -88,6 +89,39 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 		Message: "Event details retrieved successfully",
 		Data: gin.H{
 			"event": result,
+		},
+	})
+}
+
+func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
+	eventId := ctx.Param("eventId")
+
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	action, err := e.service.JoinOrLeaveEvent(ctx, eventId, userId)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: err.Error(),
+			Data:    gin.H{},
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: fmt.Sprintf("Successfully %s the event.", action),
+		Data: gin.H{
+			"action":   action,
+			"event_id": eventId,
 		},
 	})
 }

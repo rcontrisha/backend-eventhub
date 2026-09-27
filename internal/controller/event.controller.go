@@ -125,3 +125,23 @@ func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
 		},
 	})
 }
+
+func (e *EventController) GetUpcomingEvents(ctx *gin.Context) {
+	result, err := e.service.GetUpcomingEvents(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch events: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Status:  "success",
+		Message: "Events retrieved successfully",
+		Data: gin.H{
+			"events": result,
+		},
+	})
+}

@@ -38,7 +38,7 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 		}
 
 		eventList = append(eventList, dto.EventListItemResponse{
-			ID:             item.ID,
+			ID:             item.Id,
 			Title:          item.Title,
 			ImageURL:       item.ImageURL,
 			Tags:           tags,
@@ -120,4 +120,34 @@ func (e *EventService) JoinOrLeaveEvent(ctx context.Context, eventId string, use
 		return "", err
 	}
 	return "left", nil
+}
+
+func (e *EventService) GetUpcomingEvents(ctx context.Context) ([]dto.EventListItemResponse, error) {
+	result, err := e.repo.UpcomingEvent(ctx)
+	if err != nil {
+		return nil, err
+	}
+	eventList := make([]dto.EventListItemResponse, 0, len(result))
+	for _, item := range result {
+		var tags []string
+		if err := json.Unmarshal(item.TagsRaw, &tags); err != nil {
+			return nil, err
+		}
+
+		eventList = append(eventList, dto.EventListItemResponse{
+			ID:             item.Id,
+			Title:          item.Title,
+			ImageURL:       item.ImageURL,
+			Tags:           tags,
+			Capacity:       item.Capacity,
+			AttendeesCount: item.AttendeesCount,
+			StartTime:      item.StartTime,
+			EndTime:        item.EndTime,
+			Location:       item.Location,
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+		})
+	}
+
+	return eventList, nil
 }

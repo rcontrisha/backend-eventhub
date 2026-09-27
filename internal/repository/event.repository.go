@@ -28,21 +28,17 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 	var args []any
 	argIdx := 1
 
-	// Filter pencarian title
 	if req.Search != "" {
 		conditions = append(conditions, fmt.Sprintf("(e.title ILIKE $%d)", argIdx))
 		args = append(args, "%"+req.Search+"%")
 		argIdx++
 	}
-
-	// Filter lokasi
 	if req.Location != "" {
 		conditions = append(conditions, fmt.Sprintf("e.location ILIKE $%d", argIdx))
 		args = append(args, "%"+req.Location+"%")
 		argIdx++
 	}
 
-	// Filter tag (memastikan event memiliki tag tertentu)
 	if req.Tag != "" {
 		conditions = append(conditions, fmt.Sprintf(`EXISTS (
 			SELECT 1 FROM event_tags et2
@@ -58,7 +54,6 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	// 1. Query Total Count untuk pagination
 	countQuery := fmt.Sprintf(`
 		SELECT COUNT(DISTINCT e.id)
 		FROM events e
@@ -70,7 +65,6 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 		return nil, 0, err
 	}
 
-	// 2. Query Data dengan pagination
 	offset := (req.Page - 1) * req.Limit
 	args = append(args, req.Limit, offset)
 	limitArgIdx := argIdx
@@ -117,7 +111,7 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 	for rows.Next() {
 		var item model.EventListItem
 		if err := rows.Scan(
-			&item.ID,
+			&item.Id,
 			&item.Title,
 			&item.ImageURL,
 			&item.TagsRaw,
@@ -257,4 +251,66 @@ func (e *EventRepo) LeaveEvent(ctx context.Context, eventId string, userId strin
 		return errors.New("user is not participating in this event")
 	}
 	return nil
+}
+
+func (e *EventRepo) UpcomingEvent(ctx context.Context) ([]model.EventListItem, error) {
+	query := `
+		SELECT
+			e.id,
+			e.title,
+			e.image_url,
+			COALESCE(
+				(
+					SELECT json_agg(t.name ORDER BY t.name ASC)
+					FROM event_tags et
+					JOIN tags t ON t.id = et.tag_id
+					WHERE et.event_id = e.id
+				), '[]'::json
+			) AS tags,
+			e.capacity,
+			COALESCE(p.attendees_count, 0) AS attendees_count,
+			e.start_time,
+			e.end_time,
+			e.location
+		FROM events e
+		LEFT JOIN (
+			SELECT 
+				event_id, 
+				COUNT(*) AS attendees_count
+			FROM event_participants
+			GROUP BY event_id
+		) p ON p.event_id = e.id
+		WHERE e.start_time >= NOW()
+		ORDER BY e.start_time ASC
+	`
+
+	rows, err := e.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	var events []model.EventListItem
+	for rows.Next() {
+		var event model.EventListItem
+		if err := rows.Scan(
+			&event.Id,
+			&event.Title,
+			&event.ImageURL,
+			&event.TagsRaw,
+			&event.Capacity,
+			&event.AttendeesCount,
+			&event.StartTime,
+			&event.EndTime,
+			&event.Location,
+		); err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return events, nil
 }

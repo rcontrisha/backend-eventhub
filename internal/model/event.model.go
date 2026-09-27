@@ -39,10 +39,10 @@ type EventDetail struct {
 }
 
 type EventListItem struct {
-	ID             string
+	Id             string
 	Title          string
 	ImageURL       string
-	TagsRaw        []byte 
+	TagsRaw        []byte
 	Capacity       *int
 	AttendeesCount int
 	StartTime      time.Time
@@ -58,4 +58,3 @@ type EventParticipant struct {
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
-

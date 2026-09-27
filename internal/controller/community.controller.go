@@ -89,3 +89,33 @@ func (c *CommunityController) GetCommunityDetail(ctx *gin.Context) {
 		},
 	})
 }
+
+func (c *CommunityController) GetCommunityUpcomingEvents(ctx *gin.Context) {
+	var req dto.GetEventDetailRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(400, dto.Response{
+			Status:  "error",
+			Message: "Invalid community ID parameter",
+			Data:    nil,
+		})
+		return
+	}
+
+	result, err := c.service.GetCommunityUpcomingEvents(ctx, req.Id)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch community events: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "community events retrieved successfully",
+		Data: gin.H{
+			"events": result,
+		},
+	})
+}

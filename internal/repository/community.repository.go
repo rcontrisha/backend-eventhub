@@ -191,3 +191,66 @@ func (c *CommunityRepo) GetCommunityDetail(ctx context.Context, communityId stri
 
 	return &res, nil
 }
+
+func (c *CommunityRepo) GetCommunityUpcomingEvents(ctx context.Context, communityId string) ([]model.EventListItem, error) {
+	query := `
+		SELECT
+			e.id,
+			e.title,
+			e.image_url,
+			COALESCE(
+				(
+					SELECT json_agg(t.name ORDER BY t.name ASC)
+					FROM event_tags et
+					JOIN tags t ON t.id = et.tag_id
+					WHERE et.event_id = e.id
+				), '[]'::json
+			) AS tags,
+			e.capacity,
+			COALESCE(p.attendees_count, 0) AS attendees_count,
+			e.start_time,
+			e.end_time,
+			e.location,
+			e.created_at,
+			e.updated_at
+		FROM events e
+		LEFT JOIN (
+			SELECT 
+				event_id, 
+				COUNT(*) AS attendees_count
+			FROM event_participants
+			GROUP BY event_id
+		) p ON p.event_id = e.id
+		WHERE e.community_id = $1 AND e.start_time >= NOW()
+		ORDER BY e.start_time ASC
+	`
+
+	rows, err := c.db.Query(ctx, query, communityId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	events := make([]model.EventListItem, 0)
+	for rows.Next() {
+		var item model.EventListItem
+		if err := rows.Scan(
+			&item.Id,
+			&item.Title,
+			&item.ImageURL,
+			&item.TagsRaw,
+			&item.Capacity,
+			&item.AttendeesCount,
+			&item.StartTime,
+			&item.EndTime,
+			&item.Location,
+			&item.CreatedAt,
+			&item.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		events = append(events, item)
+	}
+
+	return events, rows.Err()
+}

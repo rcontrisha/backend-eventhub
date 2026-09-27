@@ -69,19 +69,49 @@ func (c *CommunityService) GetCommunityDetail(ctx context.Context, communityId s
 	}
 
 	response := dto.CommunityDetailResponse{
-		Id: raw.Id,
-		Name: raw.Name,
-		Description: raw.Description,
-		BannerUrl: raw.BannerUrl,
-		MembersCount: raw.MembersCount,
+		Id:             raw.Id,
+		Name:           raw.Name,
+		Description:    raw.Description,
+		BannerUrl:      raw.BannerUrl,
+		MembersCount:   raw.MembersCount,
 		UpcomingEvents: raw.UpcomingEvents,
-		CreatedAt: raw.CreatedAt,
-		UpdatedAt: raw.UpdatedAt,		
+		CreatedAt:      raw.CreatedAt,
+		UpdatedAt:      raw.UpdatedAt,
 	}
-	
+
 	if err := json.Unmarshal(raw.TagsRaw, &response.Tags); err != nil {
 		return nil, err
 	}
 
 	return &response, nil
+}
+
+func (c *CommunityService) GetCommunityUpcomingEvents(ctx context.Context, communityId string) ([]dto.EventListItemResponse, error) {
+	result, err := c.repo.GetCommunityUpcomingEvents(ctx, communityId)
+	if err != nil {
+		return nil, err
+	}
+	eventList := make([]dto.EventListItemResponse, 0, len(result))
+	for _, item := range result {
+		var tags []string
+		if err := json.Unmarshal(item.TagsRaw, &tags); err != nil {
+			return nil, err
+		}
+
+		eventList = append(eventList, dto.EventListItemResponse{
+			Id:             item.Id,
+			Title:          item.Title,
+			ImageURL:       item.ImageURL,
+			Tags:           tags,
+			Capacity:       item.Capacity,
+			AttendeesCount: item.AttendeesCount,
+			StartTime:      item.StartTime,
+			EndTime:        item.EndTime,
+			Location:       item.Location,
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+		})
+	}
+
+	return eventList, nil
 }

@@ -10,5 +10,5 @@ func MainRouter(router *gin.Engine, db *pgxpool.Pool) {
 	EventRouter(router, db)
 	CommunityRouter(router, db)
 	UserRouter(router, db)
-
+	OrganizerRouter(router, db)
 }

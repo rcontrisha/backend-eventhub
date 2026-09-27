@@ -55,3 +55,32 @@ func CheckToken(ctx *gin.Context) {
 	ctx.Next()
 
 }
+
+func IsOrganizer(ctx *gin.Context) {
+	token, exists := ctx.Get("token")
+	if !exists {
+		ctx.AbortWithStatusJSON(401, dto.Response{
+			Status:  "failed",
+			Message: "missing token",
+		})
+		return
+	}
+	// cek role nya
+	t, ok := token.(pkg.JWTClaims)
+	if !ok {
+		ctx.AbortWithStatusJSON(401, dto.Response{
+			Status:  "failed",
+			Message: "invalid claims",
+		})
+		return
+	}
+
+	if t.Role != "organizer" {
+		ctx.AbortWithStatusJSON(403, dto.Response{
+			Status:  "failed",
+			Message: "no privilege",
+		})
+		return
+	}
+	ctx.Next()
+}

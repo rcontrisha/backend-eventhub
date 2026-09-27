@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
@@ -128,6 +129,38 @@ func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
 
 func (e *EventController) GetUpcomingEvents(ctx *gin.Context) {
 	result, err := e.service.GetUpcomingEvents(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch events: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Status:  "success",
+		Message: "Events retrieved successfully",
+		Data: gin.H{
+			"events": result,
+		},
+	})
+}
+
+func (e *EventController) GetMyEvents(ctx *gin.Context) {
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	log.Println(userId)
+
+	result, err := e.service.GetMyEvents(ctx, userId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{
 			Status:  "error",

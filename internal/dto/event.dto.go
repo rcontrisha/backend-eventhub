@@ -11,7 +11,7 @@ type GetEventsRequest struct {
 }
 
 type EventListItemResponse struct {
-	ID             string    `json:"id"`
+	Id             string    `json:"id"`
 	Title          string    `json:"title"`
 	ImageURL       string    `json:"image_url"`
 	Tags           []string  `json:"tags"`

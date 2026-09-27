@@ -19,7 +19,8 @@ func EventRouter(r *gin.Engine, db *pgxpool.Pool) {
 
 	eventRouter.GET("", controller.GetAllEvents)
 	eventRouter.GET(":id", controller.GetEventDetail)
-	eventRouter.GET("/upcoming", controller.GetUpcomingEvents)
+	eventRouter.GET("upcoming", controller.GetUpcomingEvents)
 
 	eventRouter.POST(":eventId/toggle-join", middleware.CheckToken, controller.JoinOrLeaveController)
+	eventRouter.GET("my-events", middleware.CheckToken, controller.GetMyEvents)
 }

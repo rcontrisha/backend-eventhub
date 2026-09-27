@@ -6,6 +6,6 @@ import (
 )
 
 func MainRouter(router *gin.Engine, db *pgxpool.Pool) {
-	UserRouter(router, db)
+	AuthRouter(router, db)
 	EventRouter(router, db)
 }

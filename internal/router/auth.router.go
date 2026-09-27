@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func UserRouter(r *gin.Engine, db *pgxpool.Pool) {
+func AuthRouter(r *gin.Engine, db *pgxpool.Pool) {
 	authRouter := r.Group("/auth")
 
 	repo := repository.NewAuthRepo(db)

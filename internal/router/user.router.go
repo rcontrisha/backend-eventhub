@@ -18,4 +18,5 @@ func UserRouter(r *gin.Engine, db *pgxpool.Pool) {
 	controller := controller.NewUserController(service)
 
 	userRouter.GET("profile", middleware.CheckToken, controller.GetUserProfile)
+	userRouter.PATCH("profile/update", middleware.CheckToken, controller.ChangeUserProfile)
 }

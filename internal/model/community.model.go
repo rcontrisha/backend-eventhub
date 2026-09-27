@@ -12,31 +12,32 @@ type Community struct {
 }
 
 type CommunityDetail struct {
-	Id string 
-	Name string
-	Description string
-	BannerUrl string
-	TagsRaw []byte
-	MembersCount int
+	Id             string
+	Name           string
+	Description    string
+	BannerUrl      string
+	TagsRaw        []byte
+	MembersCount   int
 	UpcomingEvents int
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type CommunityListItem struct {
-	Id string
-	Name string
-	Description string
-	BannerUrl string
-	TagsRaw []byte
-	MembersCount int
+	Id             string
+	Name           string
+	Description    string
+	BannerUrl      string
+	TagsRaw        []byte
+	MembersCount   int
 	UpcomingEvents int
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type CommunityMembers struct {
-	CommunityId   string `db:"community_id"`
-	UserId        string `db:"user_id"`
-	CommunityRole string `db:"role"`
+	// CommunityId   string `db:"community_id"`
+	Name          string  `db:"name"`
+	AvatarUrl     *string `db:"avatar_url"`
+	CommunityRole string  `db:"role"`
 }

@@ -254,3 +254,37 @@ func (c *CommunityRepo) GetCommunityUpcomingEvents(ctx context.Context, communit
 
 	return events, rows.Err()
 }
+
+func (c *CommunityRepo) GetCommunityMembers(ctx context.Context, communityId string) ([]model.CommunityMembers, error) {
+	query := `
+		SELECT
+			u.name,
+			u.avatar_url,
+			cm.role
+		FROM community_members cm
+		JOIN communities c ON c.id = cm.community_id
+		JOIN users u ON u.id = cm.user_id
+		WHERE c.id = $1
+	`
+
+	rows, err := c.db.Query(ctx, query, communityId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	members := make([]model.CommunityMembers, 0)
+	for rows.Next() {
+		var member model.CommunityMembers
+		if err := rows.Scan(
+			&member.Name,
+			&member.AvatarUrl,
+			&member.CommunityRole,
+		); err != nil {
+			return nil, err
+		}
+		members = append(members, member)
+	}
+
+	return members, rows.Err()
+}

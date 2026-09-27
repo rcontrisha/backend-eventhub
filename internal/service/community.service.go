@@ -115,3 +115,21 @@ func (c *CommunityService) GetCommunityUpcomingEvents(ctx context.Context, commu
 
 	return eventList, nil
 }
+
+func (c *CommunityService) GetCommunityMembers(ctx context.Context, communityId string) ([]dto.CommunityMembers, error) {
+	result, err := c.repo.GetCommunityMembers(ctx, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	members := make([]dto.CommunityMembers, 0, len(result))
+	for _, member := range result {
+		members = append(members, dto.CommunityMembers{
+			Name:          member.Name,
+			AvatarUrl:     member.AvatarUrl,
+			CommunityRole: member.CommunityRole,
+		})
+	}
+
+	return members, nil
+}

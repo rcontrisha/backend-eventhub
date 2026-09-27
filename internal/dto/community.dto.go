@@ -11,15 +11,21 @@ type GetCommunityRequest struct {
 }
 
 type CommunityDetailResponse struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Description string `json:"description"`
-	BannerUrl string `json:"banner_url"`
-	Tags []string `json:"tags"`
-	MembersCount int `json:"members_count"`
-	UpcomingEvents int `json:"upcoming_events"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id             string    `json:"id"`
+	Name           string    `json:"name"`
+	Description    string    `json:"description"`
+	BannerUrl      string    `json:"banner_url"`
+	Tags           []string  `json:"tags"`
+	MembersCount   int       `json:"members_count"`
+	UpcomingEvents int       `json:"upcoming_events"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type CommunityMembers struct {
+	Name          string  `json:"name"`
+	AvatarUrl     *string `json:"avatar_url"`
+	CommunityRole string  `json:"role"`
 }
 
 type CommunityListResponse struct {
@@ -34,7 +40,7 @@ type CommunityListItemResponse struct {
 	Name           string    `json:"name"`
 	Description    string    `json:"description"`
 	BannerUrl      string    `json:"banner_url"`
-	Tags           []string    `json:"tags"`
+	Tags           []string  `json:"tags"`
 	MembersCount   int       `json:"members_count"`
 	UpcomingEvents int       `json:"upcoming_events"`
 	CreatedAt      time.Time `json:"created_at"`

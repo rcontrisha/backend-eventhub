@@ -17,6 +17,7 @@ func CommunityRouter(r *gin.Engine, db *pgxpool.Pool) {
 	controller := controller.NewCommunityController(service)
 
 	communityRouter.GET("", controller.GetAllCommunities)
+	communityRouter.GET("popular", controller.GetPopularCommunities)
 
 	communityRouter.GET(":id", controller.GetCommunityDetail)
 	communityRouter.GET(":id/upcoming-events", controller.GetCommunityUpcomingEvents)

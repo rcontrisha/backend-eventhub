@@ -288,7 +288,7 @@ func (e *EventRepo) UpcomingEvent(ctx context.Context) ([]model.EventListItem, e
 	if err != nil {
 		return nil, err
 	}
-
+	
 	var events []model.EventListItem
 	for rows.Next() {
 		var event model.EventListItem

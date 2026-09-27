@@ -149,3 +149,23 @@ func (c *CommunityController) GetCommunityMembers(ctx *gin.Context) {
 		},
 	})
 }
+
+func (c *CommunityController) GetPopularCommunities(ctx *gin.Context) {
+	result, err := c.service.GetPopularCommunities(ctx)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch communities: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Communities retrieved successfully",
+		Data: gin.H{
+			"communities": result,
+		},
+	})
+}

@@ -133,3 +133,32 @@ func (c *CommunityService) GetCommunityMembers(ctx context.Context, communityId 
 
 	return members, nil
 }
+
+func (c *CommunityService) GetPopularCommunities(ctx context.Context) ([]dto.CommunityListItemResponse, error) {
+	result, err := c.repo.GetPopularCommunities(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	communities := make([]dto.CommunityListItemResponse, 0, len(result))
+	for _, community := range result {
+		var tags []string
+		if err := json.Unmarshal(community.TagsRaw, &tags); err != nil {
+			return nil, err
+		}
+
+		communities = append(communities, dto.CommunityListItemResponse{
+			Id: community.Id,
+			Name: community.Name,
+			Description: community.Description,
+			BannerUrl: community.BannerUrl,
+			Tags: tags,
+			MembersCount: community.MembersCount,
+			UpcomingEvents: community.UpcomingEvents,
+			CreatedAt: community.CreatedAt,
+			UpdatedAt: community.UpdatedAt,
+		})
+	}
+
+	return communities, nil
+}

@@ -67,7 +67,7 @@ func (c *CommunityService) GetCommunityDetail(ctx context.Context, communityId s
 	if err != nil {
 		return nil, err
 	}
-
+	
 	response := dto.CommunityDetailResponse{
 		Id:             raw.Id,
 		Name:           raw.Name,

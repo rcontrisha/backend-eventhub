@@ -10,3 +10,21 @@ type Community struct {
 	CreatedAt   time.Time `db:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at"`
 }
+
+type CommunityListItem struct {
+	Id string
+	Name string
+	Description string
+	BannerUrl string
+	TagsRaw []byte
+	MembersCount int
+	UpcomingEvents int
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type CommunityMembers struct {
+	CommunityId   string `db:"community_id"`
+	UserId        string `db:"user_id"`
+	CommunityRole string `db:"role"`
+}

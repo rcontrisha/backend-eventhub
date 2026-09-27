@@ -58,7 +58,7 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 		Page:   req.Page,
 		Limit:  req.Limit,
 	}, nil
-}
+}	
 
 func (e *EventService) GetEventDetail(ctx context.Context, id string) (*dto.EventDetailResponse, error) {
 	raw, err := e.repo.GetEventDetail(ctx, id)

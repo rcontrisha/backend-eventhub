@@ -43,9 +43,49 @@ func (c *CommunityController) GetAllCommunities(ctx *gin.Context) {
 		Message: "Communities retrieved successfully",
 		Data: gin.H{
 			"communities": result.Communities,
-			"total":  result.Total,
-			"page":   result.Page,
-			"limit":  result.Limit,
+			"total":       result.Total,
+			"page":        result.Page,
+			"limit":       result.Limit,
+		},
+	})
+}
+
+func (c *CommunityController) GetCommunityDetail(ctx *gin.Context) {
+	var req dto.GetEventDetailRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(400, dto.Response{
+			Status:  "error",
+			Message: "Invalid community ID parameter",
+			Data:    nil,
+		})
+		return
+	}
+
+	result, err := c.service.GetCommunityDetail(ctx, req.Id)
+	if err != nil {
+		if err.Error() == "event not found" {
+			ctx.JSON(404, dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+				Data:    nil,
+			})
+			return
+		}
+
+		ctx.JSON(500, dto.Response{
+			Status:  "error",
+			Message: "Failed to retrieve community details: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Community details retrieved successfully",
+		Data: gin.H{
+			"community": result,
 		},
 	})
 }

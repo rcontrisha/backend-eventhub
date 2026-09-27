@@ -11,6 +11,18 @@ type Community struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
+type CommunityDetail struct {
+	Id string 
+	Name string
+	Description string
+	BannerUrl string
+	TagsRaw []byte
+	MembersCount int
+	UpcomingEvents int
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type CommunityListItem struct {
 	Id string
 	Name string

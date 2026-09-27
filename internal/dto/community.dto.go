@@ -10,6 +10,18 @@ type GetCommunityRequest struct {
 	Limit  int    `form:"limit,default=10"`
 }
 
+type CommunityDetailResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	BannerUrl string `json:"banner_url"`
+	Tags []string `json:"tags"`
+	MembersCount int `json:"members_count"`
+	UpcomingEvents int `json:"upcoming_events"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type CommunityListResponse struct {
 	Communities []CommunityListItemResponse `json:"communities"`
 	Total       int                         `json:"total"`

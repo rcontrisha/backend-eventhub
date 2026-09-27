@@ -61,3 +61,27 @@ func (c *CommunityService) GetAllCommunities(ctx context.Context, req dto.GetCom
 		Limit:       req.Limit,
 	}, nil
 }
+
+func (c *CommunityService) GetCommunityDetail(ctx context.Context, communityId string) (*dto.CommunityDetailResponse, error) {
+	raw, err := c.repo.GetCommunityDetail(ctx, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	response := dto.CommunityDetailResponse{
+		Id: raw.Id,
+		Name: raw.Name,
+		Description: raw.Description,
+		BannerUrl: raw.BannerUrl,
+		MembersCount: raw.MembersCount,
+		UpcomingEvents: raw.UpcomingEvents,
+		CreatedAt: raw.CreatedAt,
+		UpdatedAt: raw.UpdatedAt,		
+	}
+	
+	if err := json.Unmarshal(raw.TagsRaw, &response.Tags); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}

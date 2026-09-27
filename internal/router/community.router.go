@@ -17,4 +17,5 @@ func CommunityRouter(r *gin.Engine, db *pgxpool.Pool) {
 	controller := controller.NewCommunityController(service)
 
 	communityRouter.GET("", controller.GetAllCommunities)
+	communityRouter.GET(":id", controller.GetCommunityDetail)
 }

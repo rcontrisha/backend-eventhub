@@ -2,6 +2,7 @@ package router
 
 import (
 	"rcontrisha/backend-eventhub/internal/controller"
+	"rcontrisha/backend-eventhub/internal/middleware"
 	"rcontrisha/backend-eventhub/internal/repository"
 	"rcontrisha/backend-eventhub/internal/service"
 
@@ -23,4 +24,5 @@ func CommunityRouter(r *gin.Engine, db *pgxpool.Pool) {
 	communityRouter.GET(":id/upcoming-events", controller.GetCommunityUpcomingEvents)
 	communityRouter.GET(":id/members", controller.GetCommunityMembers)
 
+	communityRouter.POST(":communityId/toggle-join", middleware.CheckToken, controller.JoinOrLeaveController)
 }

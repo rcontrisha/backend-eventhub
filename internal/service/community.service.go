@@ -162,3 +162,22 @@ func (c *CommunityService) GetPopularCommunities(ctx context.Context) ([]dto.Com
 
 	return communities, nil
 }
+
+func (c *CommunityService) JoinOrLeaveCommunity(ctx context.Context, communityId, userId string) (string, error) {
+	joined, err := c.repo.IsJoined(ctx, communityId, userId)
+	if err != nil {
+		return "", err
+	}
+
+	if !joined {
+		if err := c.repo.JoinCommunity(ctx, communityId, userId); err != nil {
+			return "", err
+		}
+		return "joined", nil
+	}
+
+	if err := c.repo.LeaveCommunity(ctx, communityId, userId); err != nil {
+		return "", err
+	}
+	return "left", nil
+}

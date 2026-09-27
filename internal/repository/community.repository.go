@@ -357,3 +357,39 @@ func (c *CommunityRepo) GetPopularCommunities(ctx context.Context) ([]model.Comm
 
 	return communities, nil
 }
+
+func (c *CommunityRepo) IsJoined(ctx context.Context, communityId, userId string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM community_members WHERE community_id = $1 AND user_id = $2)`
+	var exists bool
+	if err := c.db.QueryRow(ctx, query, communityId, userId).Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (c *CommunityRepo) JoinCommunity(ctx context.Context, communityId, userId string) error {
+	query := `
+		INSERT INTO community_members (community_id, user_id) 
+		VALUES ($1, $2)
+	`
+	cmd, err := c.db.Exec(ctx, query, communityId, userId)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("user already joined or community not found")
+	}
+	return nil
+}
+
+func (c *CommunityRepo) LeaveCommunity(ctx context.Context, communityId, userId string) error {
+	query := `DELETE FROM community_members WHERE community_id = $1 AND user_id = $2`
+	cmd, err := c.db.Exec(ctx, query, communityId, userId)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return errors.New("user is not a member in this community")
+	}
+	return nil
+}

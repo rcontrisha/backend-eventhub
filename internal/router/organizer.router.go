@@ -13,9 +13,11 @@ import (
 func OrganizerRouter(r *gin.Engine, db *pgxpool.Pool) {
 	organizerRouter := r.Group("organizer")
 
-	repo := repository.NewOrganizerRepo(db)
-	service := service.NewOrganizerService(repo)
+	repo := repository.NewOrganizerRepo()
+	service := service.NewOrganizerService(repo, db)
 	controller := controller.NewOrganizerController(service)
 
 	organizerRouter.GET("dashboard", middleware.CheckToken, middleware.IsOrganizer, controller.GetDashboard)
+	organizerRouter.POST("event", middleware.CheckToken, middleware.IsOrganizer, controller.CreateEvent)
+
 }

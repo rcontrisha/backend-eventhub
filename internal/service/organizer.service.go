@@ -2,38 +2,43 @@ package service
 
 import (
 	"context"
+	"log"
 	"math"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/repository"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type OrganizerService struct {
 	repo *repository.OrganizerRepo
+	db   *pgxpool.Pool
 }
 
-func NewOrganizerService(repo *repository.OrganizerRepo) *OrganizerService {
+func NewOrganizerService(repo *repository.OrganizerRepo, db *pgxpool.Pool) *OrganizerService {
 	return &OrganizerService{
 		repo: repo,
+		db:   db,
 	}
 }
 
 func (s *OrganizerService) GetDashboard(ctx context.Context, organizerId string) (*dto.OrganizerDashboardResponse, error) {
-	rawStats, err := s.repo.GetDashboardStats(ctx, organizerId)
+	rawStats, err := s.repo.GetDashboardStats(ctx, s.db, organizerId)
 	if err != nil {
 		return nil, err
 	}
 
-	rawEvents, err := s.repo.GetYourEvents(ctx, organizerId)
+	rawEvents, err := s.repo.GetYourEvents(ctx, s.db, organizerId)
 	if err != nil {
 		return nil, err
 	}
 
-	rawChart, err := s.repo.GetRegistrationChart(ctx, organizerId)
+	rawChart, err := s.repo.GetRegistrationChart(ctx, s.db, organizerId)
 	if err != nil {
 		return nil, err
 	}
 
-	rawUpcoming, err := s.repo.GetUpcomingEventsMini(ctx, organizerId)
+	rawUpcoming, err := s.repo.GetUpcomingEventsMini(ctx, s.db, organizerId)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +53,7 @@ func (s *OrganizerService) GetDashboard(ctx context.Context, organizerId string)
 		TotalEvents:    rawStats.TotalEvents,
 		TotalAttendees: rawStats.TotalAttendees,
 		AvgFillRate:    avgFillRate,
-		EventViews:     3241, 
+		EventViews:     3241,
 	}
 
 	yourEventsDTO := make([]dto.DashboardEventItemResponse, 0, len(rawEvents))
@@ -89,4 +94,32 @@ func (s *OrganizerService) GetDashboard(ctx context.Context, organizerId string)
 		YourEvents:     yourEventsDTO,
 		UpcomingEvents: upcomingDTO,
 	}, nil
+}
+
+func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, payload dto.AddEventRequest) error {
+	tx, err := o.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	eventId, err := o.repo.InsertEvent(ctx, tx, organizerId, payload.AddEventDataRequest)
+	if err != nil {
+		return err
+	}
+
+	if _, err := o.repo.InsertEventTags(ctx, tx, eventId, payload.AddEventTagsRequest); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }

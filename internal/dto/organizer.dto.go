@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type DashboardStatsResponse struct {
 	TotalEvents    int     `json:"total_events"`
@@ -37,4 +39,25 @@ type OrganizerDashboardResponse struct {
 	ChartData      []DashboardChartItem            `json:"chart_data"`
 	YourEvents     []DashboardEventItemResponse    `json:"your_events"`
 	UpcomingEvents []DashboardUpcomingItemResponse `json:"upcoming_events"`
+}
+
+type AddEventDataRequest struct {
+	Title       string    `form:"title"`
+	Desc        string    `form:"desc"`
+	ImageUrl    string    `form:"image_url"`
+	CommunityId string    `form:"community_id"`
+	StartTime   time.Time `form:"start_time"`
+	EndTime     time.Time `form:"end_time"`
+	Location    string    `form:"location"`
+	Capacity    int       `form:"capacity"`
+	Speakers    string    `form:"speakers"`
+}
+
+type AddEventTagsRequest struct {
+	Tags []string `form:"tags"`
+}
+
+type AddEventRequest struct {
+	AddEventDataRequest
+	AddEventTagsRequest
 }

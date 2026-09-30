@@ -3,23 +3,28 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log"
+	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/model"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type OrganizerRepo struct {
-	db *pgxpool.Pool
+type DBTX interface {
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
 }
 
-func NewOrganizerRepo(db *pgxpool.Pool) *OrganizerRepo {
-	return &OrganizerRepo{
-		db: db,
-	}
+type OrganizerRepo struct{}
+
+func NewOrganizerRepo() *OrganizerRepo {
+	return &OrganizerRepo{}
 }
 
-func (o *OrganizerRepo) GetDashboardStats(ctx context.Context, organizerId string) (*model.OrganizerDashboardStats, error) {
+func (o *OrganizerRepo) GetDashboardStats(ctx context.Context, db DBTX, organizerId string) (*model.OrganizerDashboardStats, error) {
 	query := `
 		SELECT 
 			COUNT(e.id) AS total_events,
@@ -35,7 +40,7 @@ func (o *OrganizerRepo) GetDashboardStats(ctx context.Context, organizerId strin
 	`
 
 	var stats model.OrganizerDashboardStats
-	err := o.db.QueryRow(ctx, query, organizerId).Scan(
+	err := db.QueryRow(ctx, query, organizerId).Scan(
 		&stats.TotalEvents,
 		&stats.TotalAttendees,
 		&stats.TotalCapacity,
@@ -47,7 +52,7 @@ func (o *OrganizerRepo) GetDashboardStats(ctx context.Context, organizerId strin
 	return &stats, nil
 }
 
-func (r *OrganizerRepo) GetYourEvents(ctx context.Context, organizerId string) ([]model.OrganizerDashboardEvent, error) {
+func (o *OrganizerRepo) GetYourEvents(ctx context.Context, db DBTX, organizerId string) ([]model.OrganizerDashboardEvent, error) {
 	query := `
 		SELECT 
 			e.id, 
@@ -67,7 +72,7 @@ func (r *OrganizerRepo) GetYourEvents(ctx context.Context, organizerId string) (
 		ORDER BY e.start_time DESC
 	`
 
-	rows, err := r.db.Query(ctx, query, organizerId)
+	rows, err := db.Query(ctx, query, organizerId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch your events: %w", err)
 	}
@@ -97,7 +102,7 @@ func (r *OrganizerRepo) GetYourEvents(ctx context.Context, organizerId string) (
 	return events, nil
 }
 
-func (r *OrganizerRepo) GetRegistrationChart(ctx context.Context, organizerID string) ([]model.RegistrationChartRecord, error) {
+func (o *OrganizerRepo) GetRegistrationChart(ctx context.Context, db DBTX, organizerID string) ([]model.RegistrationChartRecord, error) {
 	query := `
 		SELECT 
 			TO_CHAR(DATE_TRUNC('month', ep.created_at), 'Mon') AS month_name,
@@ -111,7 +116,7 @@ func (r *OrganizerRepo) GetRegistrationChart(ctx context.Context, organizerID st
 		ORDER BY month_date ASC
 	`
 
-	rows, err := r.db.Query(ctx, query, organizerID)
+	rows, err := db.Query(ctx, query, organizerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch registration chart: %w", err)
 	}
@@ -139,7 +144,7 @@ func (r *OrganizerRepo) GetRegistrationChart(ctx context.Context, organizerID st
 	return records, nil
 }
 
-func (r *OrganizerRepo) GetUpcomingEventsMini(ctx context.Context, organizerId string) ([]model.OrganizerUpcomingEvent, error) {
+func (o *OrganizerRepo) GetUpcomingEventsMini(ctx context.Context, db DBTX, organizerId string) ([]model.OrganizerUpcomingEvent, error) {
 	query := `
 		SELECT 
 			e.id, 
@@ -157,7 +162,7 @@ func (r *OrganizerRepo) GetUpcomingEventsMini(ctx context.Context, organizerId s
 		ORDER BY e.start_time ASC
 	`
 
-	rows, err := r.db.Query(ctx, query, organizerId)
+	rows, err := db.Query(ctx, query, organizerId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch mini upcoming events: %w", err)
 	}
@@ -183,4 +188,34 @@ func (r *OrganizerRepo) GetUpcomingEventsMini(ctx context.Context, organizerId s
 	}
 
 	return upcoming, nil
+}
+
+func (o *OrganizerRepo) InsertEvent(ctx context.Context, db DBTX, organizerId string, payload dto.AddEventDataRequest) (string, error) {
+	log.Println(payload)
+	query := `INSERT INTO events ("title", "desc", "image_url", "location", "start_time", "end_time", "organizer_id", "community_id", "capacity", "speakers") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`
+	args := []any{payload.Title, payload.Desc, payload.ImageUrl, payload.Location, payload.StartTime, payload.EndTime, organizerId, payload.CommunityId, payload.Capacity, payload.Speakers}
+
+	var id string
+	if err := db.QueryRow(ctx, query, args...).Scan(&id); err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	log.Printf("New Event's id: %s", id)
+	return id, nil
+}
+
+func (o *OrganizerRepo) InsertEventTags(ctx context.Context, db DBTX, eventId string, tagIds dto.AddEventTagsRequest) (pgconn.CommandTag, error) {
+	query := "INSERT INTO event_tags (event_id, tag_id) VALUES "
+	args := []any{}
+	for idx, tagId := range tagIds.Tags {
+		num := (idx * 2) + 1
+		query += fmt.Sprintf("($%d, $%d)", num, num+1)
+		args = append(args, eventId, tagId)
+		if idx < len(tagIds.Tags)-1 {
+			query += ","
+		}
+	}
+
+	return db.Exec(ctx, query, args...)
 }

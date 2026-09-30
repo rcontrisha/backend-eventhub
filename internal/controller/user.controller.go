@@ -20,6 +20,17 @@ func NewUserController(service *service.UserService) *UserController {
 	}
 }
 
+// User Profile
+//
+// @Summary				Get User Profile
+// @Description		Retrieve the profile information of the authenticated user
+// @Tags					user
+// @Produce				json
+// @Router				/user/profile	[get]
+// @Security			BearerToken
+// @Success				200		{object}	dto.Response
+// @Failure				401		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (u *UserController) GetUserProfile(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
@@ -45,7 +56,7 @@ func (u *UserController) GetUserProfile(ctx *gin.Context) {
 		Status:  "success",
 		Message: "Successfully retrieve user's info.",
 		Data: gin.H{
-			"user":   data,
+			"user": data,
 		},
 	})
 }
@@ -85,7 +96,7 @@ func (u *UserController) ChangeUserProfile(ctx *gin.Context) {
 		Status:  "success",
 		Message: "Successfully update user's info.",
 		Data: gin.H{
-			"user":   data,
+			"user": data,
 		},
 	})
 }

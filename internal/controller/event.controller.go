@@ -54,11 +54,24 @@ func (e *EventController) GetAllEvents(ctx *gin.Context) {
 	})
 }
 
+// Event Detail
+//
+// @Summary				Get Event Detail
+// @Description		Retrieve details of a specific event
+// @Tags					events
+// @Accept				json
+// @Produce				json
+// @Router				/events/{id}	[get]
+// @Param					id	path	string	true	"Event ID"
+// @Success				200		{object}	dto.Response
+// @Failure				400		{object}	dto.Response
+// @Failure				404		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (e *EventController) GetEventDetail(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, dto.Response{
+		ctx.JSON(400, dto.Response{
 			Status:  "error",
 			Message: "Invalid event ID parameter",
 			Data:    nil,
@@ -69,7 +82,7 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 	result, err := e.service.GetEventDetail(ctx.Request.Context(), req.Id)
 	if err != nil {
 		if err.Error() == "event not found" {
-			ctx.JSON(http.StatusNotFound, dto.Response{
+			ctx.JSON(404, dto.Response{
 				Status:  "error",
 				Message: err.Error(),
 				Data:    nil,
@@ -77,7 +90,7 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, dto.Response{
+		ctx.JSON(500, dto.Response{
 			Status:  "error",
 			Message: "Failed to retrieve event details: " + err.Error(),
 			Data:    nil,
@@ -85,7 +98,7 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.Response{
+	ctx.JSON(200, dto.Response{
 		Status:  "success",
 		Message: "Event details retrieved successfully",
 		Data: gin.H{

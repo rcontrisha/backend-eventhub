@@ -19,6 +19,18 @@ func NewAuthController(service *service.AuthService) *AuthController {
 	}
 }
 
+// Login
+//
+// @Summary				Login User
+// @Description		Authenticate user and return token
+// @Tags					auth
+// @Accept				json
+// @Produce				json
+// @Router				/auth/login	[post]
+// @Param					data	body	dto.LoginRequest	true	"login credentials"
+// @Success				200		{object}	dto.Response
+// @Failure				401		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (a *AuthController) LoginController(ctx *gin.Context) {
 	var payload dto.LoginRequest
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {

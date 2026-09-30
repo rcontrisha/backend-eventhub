@@ -12,6 +12,18 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title													API Eventhub
+// @version												1.0
+// @description										Documentation of API Eventhub
+
+// @host													localhost:8080
+// @BasePath											/
+
+// @securityDefinitions.apikey		BearerToken
+// @in														header
+// @name													Authorization
+// @description										Bearer Token used as identity for accessing backend
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {

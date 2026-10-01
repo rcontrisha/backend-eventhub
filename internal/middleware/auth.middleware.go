@@ -53,7 +53,6 @@ func CheckToken(ctx *gin.Context) {
 	}
 	ctx.Set("token", token)
 	ctx.Next()
-
 }
 
 func IsOrganizer(ctx *gin.Context) {

@@ -8,13 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func UserRouter(r *gin.Engine, db *pgxpool.Pool) {
+func UserRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userRouter := r.Group("/user")
 
 	repo := repository.NewUserRepo(db)
-	service := service.NewUserService(repo)
+	service := service.NewUserService(repo, rdb)
 	controller := controller.NewUserController(service)
 
 	userRouter.GET("profile", middleware.CheckToken, controller.GetUserProfile)

@@ -24,6 +24,7 @@ func NewUserRepo(db *pgxpool.Pool) *UserRepo {
 func (u *UserRepo) GetUserProfile(ctx context.Context, userId string) (*model.User, error) {
 	query := `
 		SELECT
+			u.id,
 			u.email,
 			u.name,
 			u.avatar_url,
@@ -39,6 +40,7 @@ func (u *UserRepo) GetUserProfile(ctx context.Context, userId string) (*model.Us
 	var res model.User
 
 	if err := u.db.QueryRow(ctx, query, userId).Scan(
+		&res.Id,
 		&res.Email,
 		&res.Name,
 		&res.AvatarUrl,
@@ -69,7 +71,7 @@ func (u *UserRepo) ChangeUserProfile(ctx context.Context, userId string, payload
 		WHERE id = $5
 		RETURNING id, email, name, avatar_url, location, bio, role, created_at, updated_at
 	`
-	
+
 	args := []any{payload.Name, payload.AvatarUrl, payload.Location, payload.Bio, userId}
 	var user model.User
 	err := u.db.QueryRow(ctx, query, args...).Scan(
@@ -86,6 +88,6 @@ func (u *UserRepo) ChangeUserProfile(ctx context.Context, userId string, payload
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user profile: %w", err)
 	}
-	
+
 	return &user, nil
 }

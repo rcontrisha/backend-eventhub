@@ -44,9 +44,20 @@ func main() {
 	}
 	log.Println("Database is ready")
 
+	rdb := config.NewRedisClient(os.Getenv("REDIS_USER"), os.Getenv("REDIS_PASSWORD"), os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")).Connect()
+	defer rdb.Close()
+
+	str, err := rdb.Ping(context.Background()).Result()
+	if err != nil {
+		log.Println("Redis is not ready\nReason: ", err.Error())
+		return
+	}
+	log.Println(str)
+	log.Println("Redis is ready")
+
 	r := gin.Default()
 
-	router.MainRouter(r, pool)
+	router.MainRouter(r, pool, rdb)
 
 	r.Run(fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")))
 }

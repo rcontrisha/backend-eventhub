@@ -41,7 +41,6 @@ func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest
 		Role:      result.Role,
 	}
 
-	log.Printf("Payload Password: %s\nDB Password: %s", payload.Password, result.Password)
 	if err := pkg.Compare(payload.Password, result.Password); err != nil {
 		return dto.LoginResponse{}, "", err
 	}

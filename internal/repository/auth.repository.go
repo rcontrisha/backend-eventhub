@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
 
 	// "log"
 
@@ -36,6 +37,7 @@ func (a *AuthRepo) FindAccount(ctx context.Context, email string) (model.User, e
 		&user.AvatarUrl,
 		&user.Role,
 	)
+	log.Println(user)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"log"
 	"math"
 	"rcontrisha/backend-eventhub/internal/dto"
+	"rcontrisha/backend-eventhub/internal/model"
 	"rcontrisha/backend-eventhub/internal/repository"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -108,12 +111,31 @@ func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, pay
 		}
 	}()
 
-	eventId, err := o.repo.InsertEvent(ctx, tx, organizerId, payload.AddEventDataRequest)
+	var speakersJson []model.Speaker
+	jsonErr := json.Unmarshal([]byte(payload.Speakers), &speakersJson)
+	log.Println(jsonErr)
+	if jsonErr != nil {
+		return errors.New("invalid json format for speakers")
+	}
+
+	var data = model.Event{
+		Title:       payload.Title,
+		Desc:        payload.Desc,
+		ImageUrl:    payload.ImageUrl,
+		CommunityId: payload.CommunityId,
+		StartTime:   payload.StartTime,
+		EndTime:     payload.EndTime,
+		Location:    payload.Location,
+		Capacity:    payload.Capacity,
+		Speakers:    speakersJson,
+	}
+
+	eventId, err := o.repo.InsertEvent(ctx, tx, organizerId, data)
 	if err != nil {
 		return err
 	}
 
-	if _, err := o.repo.InsertEventTags(ctx, tx, eventId, payload.AddEventTagsRequest); err != nil {
+	if _, err := o.repo.InsertEventTags(ctx, tx, eventId, payload.Tags); err != nil {
 		return err
 	}
 

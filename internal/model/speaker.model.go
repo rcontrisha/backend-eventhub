@@ -1,7 +1,6 @@
 package model
 
 type Speaker struct {
-	Id   string `db:"id"`
-	Name string `db:"name"`
-	Role string `db:"role"`
+	Name string `json:"name"`
+	Role string `json:"role"`
 }

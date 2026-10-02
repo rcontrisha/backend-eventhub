@@ -161,14 +161,7 @@ func (e *EventRepo) GetEventDetail(ctx context.Context, id string) (*model.Event
 				)
 				ELSE NULL 
 			END AS community,
-			COALESCE(
-				(
-					SELECT json_agg(json_build_object('id', s.id, 'name', s.name, 'role', s.role))
-					FROM event_speakers es
-					JOIN speakers s ON es.speaker_id = s.id
-					WHERE es.event_id = e.id
-				), '[]'::json
-			) AS speakers,
+			COALESCE(e.speakers, '[]'::jsonb) AS speakers,
 			COALESCE(
 				(
 					SELECT json_agg(json_build_object('id', t.id, 'name', t.name))
@@ -288,7 +281,7 @@ func (e *EventRepo) UpcomingEvent(ctx context.Context) ([]model.EventListItem, e
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var events []model.EventListItem
 	for rows.Next() {
 		var event model.EventListItem

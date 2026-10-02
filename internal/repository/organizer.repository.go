@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/model"
 	"time"
 
@@ -190,8 +189,8 @@ func (o *OrganizerRepo) GetUpcomingEventsMini(ctx context.Context, db DBTX, orga
 	return upcoming, nil
 }
 
-func (o *OrganizerRepo) InsertEvent(ctx context.Context, db DBTX, organizerId string, payload dto.AddEventDataRequest) (string, error) {
-	log.Println(payload)
+func (o *OrganizerRepo) InsertEvent(ctx context.Context, db DBTX, organizerId string, payload model.Event) (string, error) {
+	log.Println("Payload : ", payload)
 	query := `INSERT INTO events ("title", "desc", "image_url", "location", "start_time", "end_time", "organizer_id", "community_id", "capacity", "speakers") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`
 	args := []any{payload.Title, payload.Desc, payload.ImageUrl, payload.Location, payload.StartTime, payload.EndTime, organizerId, payload.CommunityId, payload.Capacity, payload.Speakers}
 
@@ -205,14 +204,14 @@ func (o *OrganizerRepo) InsertEvent(ctx context.Context, db DBTX, organizerId st
 	return id, nil
 }
 
-func (o *OrganizerRepo) InsertEventTags(ctx context.Context, db DBTX, eventId string, tagIds dto.AddEventTagsRequest) (pgconn.CommandTag, error) {
+func (o *OrganizerRepo) InsertEventTags(ctx context.Context, db DBTX, eventId string, tagIds []string) (pgconn.CommandTag, error) {
 	query := "INSERT INTO event_tags (event_id, tag_id) VALUES "
 	args := []any{}
-	for idx, tagId := range tagIds.Tags {
+	for idx, tagId := range tagIds {
 		num := (idx * 2) + 1
 		query += fmt.Sprintf("($%d, $%d)", num, num+1)
 		args = append(args, eventId, tagId)
-		if idx < len(tagIds.Tags)-1 {
+		if idx < len(tagIds)-1 {
 			query += ","
 		}
 	}

@@ -19,5 +19,5 @@ func OrganizerRouter(r *gin.Engine, db *pgxpool.Pool) {
 
 	organizerRouter.GET("dashboard", middleware.CheckToken, middleware.IsOrganizer, controller.GetDashboard)
 	organizerRouter.POST("event", middleware.CheckToken, middleware.IsOrganizer, controller.CreateEvent)
-
+	organizerRouter.PATCH("event/:id/edit", middleware.CheckToken, middleware.IsOrganizer, controller.EditEvent)
 }

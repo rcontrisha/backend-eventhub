@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"rcontrisha/backend-eventhub/internal/model"
@@ -217,4 +218,55 @@ func (o *OrganizerRepo) InsertEventTags(ctx context.Context, db DBTX, eventId st
 	}
 
 	return db.Exec(ctx, query, args...)
+}
+
+func (o *OrganizerRepo) EditEvent(ctx context.Context, db DBTX, organizerId string, payload model.Event) error {
+	query := `
+		UPDATE events
+		SET
+			"title" = COALESCE(NULLIF($1, ''), "title"),
+			"desc" = COALESCE(NULLIF($2, ''), "desc"),
+			"image_url" = COALESCE(NULLIF($3, ''), "image_url"),
+			"location" = COALESCE(NULLIF($4, ''), "location"),
+			"start_time" = COALESCE(NULLIF($5, '0001-01-01 00:00:00+00'::timestamptz), "start_time"),
+			"end_time" = COALESCE(NULLIF($6, '0001-01-01 00:00:00+00'::timestamptz), "end_time"),
+			"capacity" = COALESCE(NULLIF($7, 0), "capacity"),
+			"community_id" = COALESCE($8, "community_id"),
+			"speakers" = COALESCE($9::jsonb, "speakers"),
+			"updated_at" = NOW()
+		WHERE "id" = $10
+		RETURNING "id", "title", "desc", "image_url", "location", "start_time", "end_time", "capacity", "organizer_id", "community_id", "speakers", "created_at", "updated_at";
+	`
+
+	var res model.Event
+	args := []any{payload.Title, payload.Desc, payload.ImageUrl, payload.Location, payload.StartTime, payload.EndTime, payload.Capacity, payload.CommunityId, payload.Speakers, payload.Id}
+	if err := db.QueryRow(ctx, query, args...).Scan(
+		&res.Id,
+		&res.Title,
+		&res.Desc,
+		&res.ImageUrl,
+		&res.Location,
+		&res.StartTime,
+		&res.EndTime,
+		&res.Capacity,
+		&res.OrganizerId,
+		&res.CommunityId,
+		&res.Speakers,
+		&res.CreatedAt,
+		&res.UpdatedAt,
+	); err != nil {
+		log.Println(err.Error())
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errors.New("event not found or unauthorized")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (o *OrganizerRepo) DeleteEventTags(ctx context.Context, db DBTX, eventId string) (pgconn.CommandTag, error) {
+	query := "DELETE FROM event_tags WHERE event_id=$1"
+
+	return db.Exec(ctx, query, eventId)
 }

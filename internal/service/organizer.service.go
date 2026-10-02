@@ -145,3 +145,76 @@ func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, pay
 
 	return nil
 }
+
+func (o *OrganizerService) EditEvent(ctx context.Context, organizerId, eventId string, payload dto.EditEventRequest) error {
+	tx, err := o.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	data := model.Event{
+		Id:          eventId,
+		CommunityId: payload.CommunityId,
+	}
+
+	if payload.Title != nil {
+		data.Title = *payload.Title
+	}
+	if payload.Desc != nil {
+		data.Desc = *payload.Desc
+	}
+	if payload.ImageUrl != nil {
+		data.ImageUrl = *payload.ImageUrl
+	}
+	if payload.Location != nil {
+		data.Location = *payload.Location
+	}
+	if payload.StartTime != nil {
+		data.StartTime = *payload.StartTime
+	}
+	if payload.EndTime != nil {
+		data.EndTime = *payload.EndTime
+	}
+	if payload.Capacity != nil {
+		data.Capacity = *payload.Capacity
+	}
+
+	if payload.Speakers != nil && *payload.Speakers != "" {
+		var speakersJson []model.Speaker
+		if err := json.Unmarshal([]byte(*payload.Speakers), &speakersJson); err != nil {
+			log.Printf("[Service] Invalid JSON format for speakers: %v", err)
+			return errors.New("invalid json format for speakers")
+		}
+		data.Speakers = speakersJson
+	}
+
+	if err := o.repo.EditEvent(ctx, tx, organizerId, data); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if len(payload.Tags) > 0 {
+		if _, err := o.repo.DeleteEventTags(ctx, tx, eventId); err != nil {
+			log.Println(err)
+			return err
+		}
+
+		if _, err := o.repo.InsertEventTags(ctx, tx, eventId, payload.Tags); err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}	

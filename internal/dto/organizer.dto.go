@@ -45,7 +45,7 @@ type AddEventDataRequest struct {
 	Title       string    `form:"title"`
 	Desc        string    `form:"desc"`
 	ImageUrl    string    `form:"image_url"`
-	CommunityId *string    `form:"community_id"`
+	CommunityId *string   `form:"community_id"`
 	StartTime   time.Time `form:"start_time"`
 	EndTime     time.Time `form:"end_time"`
 	Location    string    `form:"location"`
@@ -60,4 +60,26 @@ type AddEventTagsRequest struct {
 type AddEventRequest struct {
 	AddEventDataRequest
 	AddEventTagsRequest
+}
+
+type EditEventDataRequest struct {
+	Title       *string    `form:"title"`
+	Desc        *string    `form:"desc"`
+	ImageUrl    *string    `form:"image_url"`
+	CommunityId *string    `form:"community_id"`
+	StartTime   *time.Time `form:"start_time"`
+	EndTime     *time.Time `form:"end_time"`
+	Location    *string    `form:"location"`
+	Capacity    *int       `form:"capacity"`
+	Speakers    *string    `form:"speakers"`
+}
+
+type EditEventTagsRequest struct {
+	Tags []string `form:"tags"`
+}
+
+type EditEventRequest struct {
+	Id string `uri:"id"`
+	EditEventDataRequest
+	EditEventTagsRequest
 }

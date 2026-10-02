@@ -84,3 +84,48 @@ func (o *OrganizerController) CreateEvent(ctx *gin.Context) {
 		Message: "successfully create event.",
 	})
 }
+
+func (o *OrganizerController) EditEvent(ctx *gin.Context) {
+	var req dto.EditEventRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(400, dto.Response{
+			Status:  "error",
+			Message: "Invalid event ID parameter",
+			Data:    nil,
+		})
+		return
+	}
+
+	if err := ctx.ShouldBindWith(&req, binding.FormMultipart); err != nil {
+		ctx.JSON(400, dto.Response{
+			Status:  "error",
+			Message: "Invalid form data payload",
+			Data:    nil,
+		})
+		return
+	}
+
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+	claims := token.(pkg.JWTClaims)
+	organizerId := claims.Id
+
+	if err := o.service.EditEvent(ctx, organizerId, req.Id, req); err != nil {
+		ctx.JSON(500, dto.Response{
+			Status: "error",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status":  "success",
+		"message": "Event successfully updated",
+	})
+}

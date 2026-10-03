@@ -2,6 +2,7 @@ package router
 
 import (
 	_ "rcontrisha/backend-eventhub/docs"
+	"rcontrisha/backend-eventhub/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -11,6 +12,8 @@ import (
 )
 
 func MainRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	router.Use(middleware.Cors)
+
 	router.GET("docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	AuthRouter(router, db)

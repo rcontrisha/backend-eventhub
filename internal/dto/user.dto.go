@@ -13,3 +13,8 @@ type UserProfile struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type ChangePassword struct {
+	OldPwd string `json:"old_password"`
+	NewPwd string `json:"new_password"`
+}

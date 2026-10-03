@@ -20,4 +20,5 @@ func UserRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	userRouter.GET("profile", middleware.CheckToken, controller.GetUserProfile)
 	userRouter.PATCH("profile/update", middleware.CheckToken, controller.ChangeUserProfile)
+	userRouter.PATCH("change-password", middleware.CheckToken, controller.ChangePassword)
 }

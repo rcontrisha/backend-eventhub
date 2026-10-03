@@ -91,3 +91,27 @@ func (u *UserRepo) ChangeUserProfile(ctx context.Context, userId string, payload
 
 	return &user, nil
 }
+
+func (u *UserRepo) GetUserPwd(ctx context.Context, userId string) (string, error) {
+	query := `SELECT password FROM users WHERE id=$1`
+	var oldPwd string
+	if err := u.db.QueryRow(ctx, query, userId).Scan(&oldPwd); err != nil {
+		return "", fmt.Errorf("failed to update user profile: %w", err)
+	}
+
+	return oldPwd, nil
+}
+
+func (u *UserRepo) ChangePassword(ctx context.Context, userId, newPwd string) error {
+	query := `UPDATE users SET password=$1 WHERE id=$2`
+	cmd, err := u.db.Exec(ctx, query, newPwd, userId)
+	if err != nil {
+		return err
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return errors.New("No Row(s) Affected")
+	}
+
+	return nil
+}

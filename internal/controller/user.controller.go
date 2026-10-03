@@ -100,3 +100,40 @@ func (u *UserController) ChangeUserProfile(ctx *gin.Context) {
 		},
 	})
 }
+
+func (u *UserController) ChangePassword(ctx *gin.Context) {
+	var payload dto.ChangePassword
+	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
+		log.Println("error", e.Error())
+		ctx.JSON(500, gin.H{
+			"success": false,
+			"msg":     e.Error(),
+		})
+		return
+	}
+
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	err := u.service.ChangeUserPwd(ctx, userId, payload)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: err.Error(),
+			Data:    gin.H{},
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Successfully update user's password.",
+	})
+}

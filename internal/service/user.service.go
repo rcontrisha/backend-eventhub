@@ -8,6 +8,7 @@ import (
 	"log"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/repository"
+	"rcontrisha/backend-eventhub/pkg"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -92,4 +93,26 @@ func (u *UserService) ChangeUserProfile(ctx context.Context, userId string, payl
 		CreatedAt: updatedUser.CreatedAt,
 		UpdatedAt: updatedUser.UpdatedAt,
 	}, nil
+}
+
+func (u *UserService) ChangeUserPwd(ctx context.Context, userId string, payload dto.ChangePassword) error {
+	if userId == "" {
+		return errors.New("unauthorized: missing user id")
+	}
+
+	oldPwd, err := u.repo.GetUserPwd(ctx, userId)
+	if err := pkg.Compare(payload.OldPwd, oldPwd); err != nil {
+		return errors.New("password mismatch")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	hashedNewPwd := pkg.NewRecommendedHashConfig().GenHash(payload.NewPwd)
+	if err := u.repo.ChangePassword(ctx, userId, hashedNewPwd); err != nil {
+		return err
+	}
+
+	return nil
 }

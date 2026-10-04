@@ -1,0 +1,5 @@
+ALTER TABLE ONLY public.community_discussions DROP CONSTRAINT community_discussions_user_id_fkey;
+ALTER TABLE ONLY public.community_discussions DROP CONSTRAINT community_discussions_community_id_fkey;
+ALTER TABLE ONLY public.community_discussions DROP CONSTRAINT community_discussions_pkey;
+
+DROP TABLE public.community_discussions;

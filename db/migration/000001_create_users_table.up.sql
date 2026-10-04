@@ -8,8 +8,8 @@ CREATE TABLE public.users (
     bio character varying(255) DEFAULT NULL::character varying,
     job character varying(255) DEFAULT NULL::character varying,
     role character varying DEFAULT 'attendee'::character varying NOT NULL,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    created_at timestamp with time zone,
+    updated_at timestamp with time zone
 );
 
 ALTER TABLE ONLY public.users

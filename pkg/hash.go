@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"golang.org/x/crypto/argon2"
@@ -59,7 +58,7 @@ func (h *HashConfig) genSalt() []byte {
 	return salt
 }
 
-func 	Compare(password string, hashed string) error {
+func Compare(password string, hashed string) error {
 	result := strings.Split(hashed, "$")
 	if len(result) != 6 {
 		return errors.New("Incorrect Hash Format.")
@@ -94,7 +93,6 @@ func 	Compare(password string, hashed string) error {
 	}
 
 	newHash := argon2.IDKey([]byte(password), salt, time, memory, threads, uint32(len(hash)))
-	log.Printf("Hashed Payload Password: %s", newHash)
 
 	if subtle.ConstantTimeCompare(hash, newHash) == 0 {
 		return errors.New("Hash Mismatch.")

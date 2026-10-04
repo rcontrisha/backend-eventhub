@@ -110,3 +110,32 @@ func IsOrganizer(ctx *gin.Context) {
 	}
 	ctx.Next()
 }
+
+func IsAdmin(ctx *gin.Context) {
+	token, exists := ctx.Get("token")
+	if !exists {
+		ctx.AbortWithStatusJSON(401, dto.Response{
+			Status:  "failed",
+			Message: "missing token",
+		})
+		return
+	}
+	// cek role nya
+	t, ok := token.(pkg.JWTClaims)
+	if !ok {
+		ctx.AbortWithStatusJSON(401, dto.Response{
+			Status:  "failed",
+			Message: "invalid claims",
+		})
+		return
+	}
+
+	if t.Role != "admin" {
+		ctx.AbortWithStatusJSON(403, dto.Response{
+			Status:  "failed",
+			Message: "no privilege",
+		})
+		return
+	}
+	ctx.Next()
+}

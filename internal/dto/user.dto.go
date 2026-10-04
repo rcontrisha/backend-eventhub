@@ -15,6 +15,6 @@ type UserProfile struct {
 }
 
 type ChangePassword struct {
-	OldPwd string `json:"old_password"`
-	NewPwd string `json:"new_password"`
+	OldPwd string `json:"old_password" binding:"required"`
+	NewPwd string `json:"new_password" binding:"required,min=8,nefield=OldPwd"`
 }

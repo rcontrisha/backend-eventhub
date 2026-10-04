@@ -3,11 +3,11 @@ package dto
 import "time"
 
 type GetCommunityRequest struct {
-	Search string `form:"search"`
-	Status string `form:"location"`
-	Tag    string `form:"tag"`
-	Page   int    `form:"page,default=1"`
-	Limit  int    `form:"limit,default=10"`
+	Search   string `form:"search" binding:"omitempty,max=100"`
+	Location string `form:"location" binding:"omitempty,max=100"`
+	Tag      string `form:"tag" binding:"omitempty,max=50"`
+	Page     int    `form:"page,default=1" binding:"omitempty,min=1"`
+	Limit    int    `form:"limit,default=10" binding:"omitempty,min=1,max=100"`
 }
 
 type CommunityDetailResponse struct {

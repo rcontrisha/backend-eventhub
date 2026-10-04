@@ -8,8 +8,7 @@ VALUES
     'Don''t forget — your registered event is on Aug 22 at 09:00 in Bandung.',
     'event_reminder',
     '2026-09-18 14:31:22.439931',
-    '2026-09-18 14:31:22.439931',
-    false
+    '2026-09-18 14:31:22.439931'
   );
 
 INSERT INTO
@@ -22,8 +21,7 @@ VALUES
     'You''re registered for Frontend Craft Conference on Oct 12, 2026.',
     'event_registration',
     '2026-09-18 13:31:22.439931',
-    '2026-09-18 13:31:22.439931',
-    false
+    '2026-09-18 13:31:22.439931'
   );
 
 INSERT INTO
@@ -36,8 +34,7 @@ VALUES
     'Rizky posted "Advanced Go Modules Workshop" — happening Sep 30.',
     'community_event',
     '2026-09-17 16:31:22.439931',
-    '2026-09-17 16:31:22.439931',
-    false
+    '2026-09-17 16:31:22.439931'
   );
 
 INSERT INTO
@@ -50,8 +47,7 @@ VALUES
     'New speaker added: Kevin Lim from Google. Updated schedule posted.',
     'event_update',
     '2026-09-16 16:31:22.439931',
-    '2026-09-16 16:31:22.439931',
-    false
+    '2026-09-16 16:31:22.439931'
   );
 
 INSERT INTO
@@ -64,8 +60,7 @@ VALUES
     'Ahmad Fauzan replied to your question in Go Concurrency Workshop.',
     'discussion_reply',
     '2026-09-15 16:31:22.439931',
-    '2026-09-15 16:31:22.439931',
-    false
+    '2026-09-15 16:31:22.439931'
   );
 
 INSERT INTO
@@ -78,8 +73,7 @@ VALUES
     'Your community just hit 2,000 members! Thanks for being part of it.',
     'community_milestone',
     '2026-09-14 16:31:22.439931',
-    '2026-09-14 16:31:22.439931',
-    false
+    '2026-09-14 16:31:22.439931'
   );
 
 INSERT INTO
@@ -92,6 +86,5 @@ VALUES
     'Your saved event is on Sep 18 at 10:00, Online.',
     'event_reminder',
     '2026-09-13 16:31:22.439931',
-    '2026-09-13 16:31:22.439931',
-    false
+    '2026-09-13 16:31:22.439931'
   );

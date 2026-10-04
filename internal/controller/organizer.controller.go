@@ -1,10 +1,16 @@
 package controller
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path"
+	"path/filepath"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
 	"rcontrisha/backend-eventhub/pkg"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -57,21 +63,69 @@ func (o *OrganizerController) CreateEvent(ctx *gin.Context) {
 			Status:  "failed",
 			Message: "Token Data Not Found in Context.",
 		})
+		return
 	}
 	claims := token.(pkg.JWTClaims)
 	organizerId := claims.Id
 
 	var payload dto.AddEventRequest
 	if err := ctx.ShouldBindWith(&payload, binding.FormMultipart); err != nil {
-		log.Println(err.Error())
-		ctx.JSON(500, dto.Response{
+		log.Println("[CreateEvent] Bind error:", err.Error())
+		ctx.JSON(400, dto.Response{
 			Status:  "failed",
-			Message: "internal server error",
+			Message: err.Error(),
 		})
 		return
 	}
 
-	if err := o.service.AddEvent(ctx, organizerId, payload); err != nil {
+	const maxFileSize = 4 * 1024 * 1024
+	if payload.ImageUrl.Size > maxFileSize {
+		ctx.JSON(400, dto.Response{
+			Status:  "failed",
+			Message: "file exceeds size limit (4mb)",
+		})
+		return
+	}
+
+	ext := strings.ToLower(path.Ext(payload.ImageUrl.Filename))
+	allowedExtensions := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+	}
+	if !allowedExtensions[ext] {
+		ctx.JSON(400, dto.Response{
+			Status:  "failed",
+			Message: "format unsupported. please upload in .jpg, .jpeg, or .png format",
+		})
+		return
+	}
+
+	uploadDir := filepath.Join("public", "img", "events")
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		log.Println("[CreateEvent] Failed to create directory:", err.Error())
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: "error while processing file",
+		})
+		return
+	}
+
+	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), payload.ImageUrl.Filename)
+	targetFilePath := filepath.Join(uploadDir, filename)
+
+	if err := ctx.SaveUploadedFile(payload.ImageUrl, targetFilePath); err != nil {
+		log.Println("[CreateEvent] SaveUploadedFile error:", err.Error())
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: "error saving file",
+		})
+		return
+	}
+
+	dbImageUrl := fmt.Sprintf("img/events/%s", filename)
+
+	if err := o.service.AddEvent(ctx, organizerId, payload, dbImageUrl); err != nil {
 		ctx.JSON(500, dto.Response{
 			Status:  "failed",
 			Message: err.Error(),
@@ -112,13 +166,65 @@ func (o *OrganizerController) EditEvent(ctx *gin.Context) {
 			Status:  "failed",
 			Message: "Token Data Not Found in Context.",
 		})
+		return
 	}
 	claims := token.(pkg.JWTClaims)
 	organizerId := claims.Id
 
-	if err := o.service.EditEvent(ctx, organizerId, req.Id, req); err != nil {
+	var uploadedImageUrl *string
+	if req.ImageUrl != nil {
+		const maxFileSize = 2 * 1024 * 1024
+		if req.ImageUrl.Size > maxFileSize {
+			ctx.JSON(400, dto.Response{
+				Status:  "failed",
+				Message: "Ukuran gambar maksimal adalah 2MB",
+			})
+			return
+		}
+
+		ext := strings.ToLower(path.Ext(req.ImageUrl.Filename))
+		allowedExtensions := map[string]bool{
+			".jpg":  true,
+			".jpeg": true,
+			".png":  true,
+		}
+		if !allowedExtensions[ext] {
+			ctx.JSON(400, dto.Response{
+				Status:  "failed",
+				Message: "unsupported file format. please upload .jpg, .jpeg, or .png format",
+			})
+			return
+		}
+
+		uploadDir := filepath.Join("public", "img", "events")
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			log.Println("[EditEvent] Failed to create directory:", err.Error())
+			ctx.JSON(500, dto.Response{
+				Status:  "failed",
+				Message: "error processing file",
+			})
+			return
+		}
+
+		filename := fmt.Sprintf("%d_%s%s", time.Now().UnixNano(), organizerId, ext)
+		targetFilePath := filepath.Join(uploadDir, filename)
+
+		if err := ctx.SaveUploadedFile(req.ImageUrl, targetFilePath); err != nil {
+			log.Println("[EditEvent] SaveUploadedFile error:", err.Error())
+			ctx.JSON(500, dto.Response{
+				Status:  "failed",
+				Message: "error saving file",
+			})
+			return
+		}
+
+		pathStr := fmt.Sprintf("img/events/%s", filename)
+		uploadedImageUrl = &pathStr
+	}
+
+	if err := o.service.EditEvent(ctx, organizerId, req.Id, req, uploadedImageUrl); err != nil {
 		ctx.JSON(500, dto.Response{
-			Status: "error",
+			Status:  "error",
 			Message: err.Error(),
 		})
 		return

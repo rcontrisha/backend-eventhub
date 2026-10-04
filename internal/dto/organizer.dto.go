@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"mime/multipart"
 	"time"
 )
 
@@ -42,15 +43,15 @@ type OrganizerDashboardResponse struct {
 }
 
 type AddEventDataRequest struct {
-	Title       string    `form:"title" binding:"required,min=3,max=150"`
-	Desc        string    `form:"desc" binding:"required,min=10"`
-	ImageUrl    string    `form:"image_url" binding:"required"`
-	CommunityId *string   `form:"community_id" binding:"omitempty,uuid"`
-	StartTime   time.Time `form:"start_time" binding:"required"`
-	EndTime     time.Time `form:"end_time" binding:"required,gtfield=StartTime"`
-	Location    string    `form:"location" binding:"required,max=200"`
-	Capacity    int       `form:"capacity" binding:"required,min=1"`
-	Speakers    string    `form:"speakers" binding:"omitempty"`
+	Title       string               `form:"title" binding:"required,min=3,max=150"`
+	Desc        string               `form:"desc" binding:"required,min=10"`
+	ImageUrl    *multipart.FileHeader `form:"image_url" binding:"required"`
+	CommunityId *string              `form:"community_id" binding:"omitempty,uuid"`
+	StartTime   time.Time            `form:"start_time" binding:"required"`
+	EndTime     time.Time            `form:"end_time" binding:"required,gtfield=StartTime"`
+	Location    string               `form:"location" binding:"required,max=200"`
+	Capacity    int                  `form:"capacity" binding:"required,min=1"`
+	Speakers    string               `form:"speakers" binding:"omitempty"`
 }
 
 type AddEventTagsRequest struct {
@@ -63,15 +64,15 @@ type AddEventRequest struct {
 }
 
 type EditEventDataRequest struct {
-	Title       *string    `form:"title" binding:"omitempty,min=3,max=150"`
-	Desc        *string    `form:"desc" binding:"omitempty,min=10"`
-	ImageUrl    *string    `form:"image_url" binding:"omitempty"`
-	CommunityId *string    `form:"community_id" binding:"omitempty,uuid"`
-	StartTime   *time.Time `form:"start_time" binding:"omitempty"`
-	EndTime     *time.Time `form:"end_time" binding:"omitempty,gtfield=StartTime"`
-	Location    *string    `form:"location" binding:"omitempty,max=200"`
-	Capacity    *int       `form:"capacity" binding:"omitempty,min=1"`
-	Speakers    *string    `form:"speakers" binding:"omitempty"`
+	Title       *string               `form:"title" binding:"omitempty,min=3,max=150"`
+	Desc        *string               `form:"desc" binding:"omitempty,min=10"`
+	ImageUrl    *multipart.FileHeader `form:"image_url" binding:"omitempty"`
+	CommunityId *string               `form:"community_id" binding:"omitempty,uuid"`
+	StartTime   *time.Time            `form:"start_time" binding:"omitempty"`
+	EndTime     *time.Time            `form:"end_time" binding:"omitempty,gtfield=StartTime"`
+	Location    *string               `form:"location" binding:"omitempty,max=200"`
+	Capacity    *int                  `form:"capacity" binding:"omitempty,min=1"`
+	Speakers    *string               `form:"speakers" binding:"omitempty"`
 }
 
 type EditEventTagsRequest struct {

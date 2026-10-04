@@ -1,6 +1,7 @@
 package router
 
 import (
+	"path"
 	_ "rcontrisha/backend-eventhub/docs"
 	"rcontrisha/backend-eventhub/internal/middleware"
 
@@ -15,6 +16,7 @@ func MainRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	router.Use(middleware.Cors)
 
 	router.GET("docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.Static("img", path.Join("public", "img"))
 
 	AuthRouter(router, db, rdb)
 	EventRouter(router, db, rdb)

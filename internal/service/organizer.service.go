@@ -99,7 +99,7 @@ func (s *OrganizerService) GetDashboard(ctx context.Context, organizerId string)
 	}, nil
 }
 
-func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, payload dto.AddEventRequest) error {
+func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, payload dto.AddEventRequest, imageUrl string) error {
 	tx, err := o.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, pay
 	var data = model.Event{
 		Title:       payload.Title,
 		Desc:        payload.Desc,
-		ImageUrl:    payload.ImageUrl,
+		ImageUrl:    imageUrl,
 		CommunityId: payload.CommunityId,
 		StartTime:   payload.StartTime,
 		EndTime:     payload.EndTime,
@@ -146,7 +146,7 @@ func (o *OrganizerService) AddEvent(ctx context.Context, organizerId string, pay
 	return nil
 }
 
-func (o *OrganizerService) EditEvent(ctx context.Context, organizerId, eventId string, payload dto.EditEventRequest) error {
+func (o *OrganizerService) EditEvent(ctx context.Context, organizerId, eventId string, payload dto.EditEventRequest, imageUrl *string) error {
 	tx, err := o.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -169,8 +169,8 @@ func (o *OrganizerService) EditEvent(ctx context.Context, organizerId, eventId s
 	if payload.Desc != nil {
 		data.Desc = *payload.Desc
 	}
-	if payload.ImageUrl != nil {
-		data.ImageUrl = *payload.ImageUrl
+	if imageUrl != nil {
+		data.ImageUrl = *imageUrl
 	}
 	if payload.Location != nil {
 		data.Location = *payload.Location

@@ -9,9 +9,9 @@ CREATE TABLE public.events (
     location character varying(255) NOT NULL,
     capacity integer,
     organizer_id uuid NOT NULL,
-    speakers jsonb DEFAULT '[]'::jsonb
+    speakers jsonb DEFAULT '[]'::jsonb,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 ALTER TABLE ONLY public.events

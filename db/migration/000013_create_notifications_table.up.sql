@@ -5,7 +5,7 @@ CREATE TABLE public.notifications (
     content text NOT NULL,
     type character varying NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    read_at timestamp with time zone NOT NULL,
+    read_at timestamp with time zone NOT NULL
 );
 
 ALTER TABLE ONLY public.notifications

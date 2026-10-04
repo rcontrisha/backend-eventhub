@@ -8,9 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func CommunityRouter(r *gin.Engine, db *pgxpool.Pool) {
+func CommunityRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	communityRouter := r.Group("/communities")
 
 	repo := repository.NewCommunityRepo(db)
@@ -24,5 +25,5 @@ func CommunityRouter(r *gin.Engine, db *pgxpool.Pool) {
 	communityRouter.GET(":id/upcoming-events", controller.GetCommunityUpcomingEvents)
 	communityRouter.GET(":id/members", controller.GetCommunityMembers)
 
-	communityRouter.POST(":communityId/toggle-join", middleware.CheckToken, controller.JoinOrLeaveController)
+	communityRouter.POST(":communityId/toggle-join", middleware.CheckToken(rdb), controller.JoinOrLeaveController)
 }

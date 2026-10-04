@@ -16,9 +16,9 @@ func MainRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	router.GET("docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	AuthRouter(router, db)
-	EventRouter(router, db)
-	CommunityRouter(router, db)
+	AuthRouter(router, db, rdb)
+	EventRouter(router, db, rdb)
+	CommunityRouter(router, db, rdb)
 	UserRouter(router, db, rdb)
-	OrganizerRouter(router, db)
+	OrganizerRouter(router, db, rdb)
 }

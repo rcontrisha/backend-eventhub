@@ -8,6 +8,7 @@ import (
 	"rcontrisha/backend-eventhub/internal/model"
 	"rcontrisha/backend-eventhub/internal/repository"
 	"rcontrisha/backend-eventhub/pkg"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -71,4 +72,13 @@ func (a *AuthService) RegisterService(ctx context.Context, payload dto.RegisterR
 	}
 
 	return nil
+}
+
+func (a *AuthService) Logout(ctx context.Context, jti string, expiresAt time.Time) error {
+	ttl := time.Until(expiresAt)
+	if ttl <= 0 {
+		return nil
+	}
+
+	return a.repo.BlacklistToken(ctx, jti, ttl)
 }

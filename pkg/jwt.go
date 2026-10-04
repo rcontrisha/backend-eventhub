@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"time"
+	"uuid"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -24,6 +25,7 @@ func NewJWTClaims(id, email, name string, avatar_url *string, role string) *JWTC
 		Name:      name,
 		AvatarUrl: avatar_url,
 		Role:      role,
+		ID: uuid.New().String(),
 		Issuer:    os.Getenv("JWT_ISSUER"),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
 	}

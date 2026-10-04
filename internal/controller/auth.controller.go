@@ -4,6 +4,7 @@ import (
 	"log"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
+	"rcontrisha/backend-eventhub/pkg"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -88,5 +89,32 @@ func (a *AuthController) RegisterController(ctx *gin.Context) {
 		Status:  "success",
 		Message: "Success Create New User.",
 		Data:    gin.H{},
+	})
+}
+
+func (a *AuthController) Logout(ctx *gin.Context) {
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	jti := claims.ID
+	expiresAt := claims.ExpiresAt
+	if err := a.service.Logout(ctx, jti, expiresAt.Time); err != nil {
+		log.Println("Error: ", err.Error())
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Successfully logged out",
 	})
 }

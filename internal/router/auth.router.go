@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"rcontrisha/backend-eventhub/internal/controller"
+	"rcontrisha/backend-eventhub/internal/middleware"
 	"rcontrisha/backend-eventhub/internal/repository"
 	"rcontrisha/backend-eventhub/internal/service"
 	"rcontrisha/backend-eventhub/pkg"
@@ -10,17 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func AuthRouter(r *gin.Engine, db *pgxpool.Pool) {
-	authRouter := r.Group("/auth")
+func AuthRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	authRouter := r.Group("auth")
 
-	repo := repository.NewAuthRepo(db)
+	repo := repository.NewAuthRepo(db, rdb)
 	service := service.NewAuthService(repo)
 	controller := controller.NewAuthController(service)
 
-	authRouter.POST("/login", controller.LoginController)
-	authRouter.POST("/register", controller.RegisterController)
+	authRouter.POST("login", controller.LoginController)
+	authRouter.POST("register", controller.RegisterController)
+	authRouter.POST("logout", middleware.CheckToken(rdb), controller.Logout)
 
 	authRouter.POST("pwd", func(ctx *gin.Context) {
 		type body struct {

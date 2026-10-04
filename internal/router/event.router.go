@@ -8,9 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func EventRouter(r *gin.Engine, db *pgxpool.Pool) {
+func EventRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	eventRouter := r.Group("/events")
 
 	repo := repository.NewEventRepo(db)
@@ -21,6 +22,6 @@ func EventRouter(r *gin.Engine, db *pgxpool.Pool) {
 	eventRouter.GET(":id", controller.GetEventDetail)
 	eventRouter.GET("upcoming", controller.GetUpcomingEvents)
 
-	eventRouter.POST(":eventId/toggle-join", middleware.CheckToken, controller.JoinOrLeaveController)
-	eventRouter.GET("my-events", middleware.CheckToken, controller.GetMyEvents)
+	eventRouter.POST(":eventId/toggle-join", middleware.CheckToken(rdb), controller.JoinOrLeaveController)
+	eventRouter.GET("my-events", middleware.CheckToken(rdb), controller.GetMyEvents)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	// "log"
 
@@ -12,15 +13,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthRepo struct {
-	db *pgxpool.Pool
+	db  *pgxpool.Pool
+	rdb *redis.Client
 }
 
-func NewAuthRepo(db *pgxpool.Pool) *AuthRepo {
+func NewAuthRepo(db *pgxpool.Pool, rdb *redis.Client) *AuthRepo {
 	return &AuthRepo{
-		db: db,
+		db:  db,
+		rdb: rdb,
 	}
 }
 
@@ -64,4 +68,9 @@ func (a *AuthRepo) CreateNewUser(ctx context.Context, payload model.User) error 
 	}
 
 	return nil
+}
+
+func (a *AuthRepo) BlacklistToken(ctx context.Context, jti string, ttl time.Duration) error {
+	key := "rito:blacklist:" + jti
+	return a.rdb.Set(ctx, key, "revoked", ttl).Err()
 }

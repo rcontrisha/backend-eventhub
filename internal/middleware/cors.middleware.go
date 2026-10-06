@@ -9,11 +9,11 @@ import (
 
 func Cors(c *gin.Context) {
 	// simple cors
-	allowedOrigins := []string{"http://localhost"}
+	allowedOrigins := []string{"http://localhost", "http://localhost:5173"}
 	if slices.Contains(allowedOrigins, c.GetHeader("Origin")) {
 		c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"))
 	}
-	c.Header("Access-Control-Allow-Headers", "Content-Type, XXX-Header")
+	c.Header("Access-Control-Allow-Headers", "Content-Type, XXX-Header, Authorization")
 	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS, PATCH")
 
 	// preflight cors

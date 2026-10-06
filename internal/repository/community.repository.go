@@ -325,6 +325,7 @@ func (c *CommunityRepo) GetPopularCommunities(ctx context.Context) ([]model.Comm
 			GROUP BY community_id
 		) e ON e.community_id = c.id
 		ORDER BY members_count DESC
+		LIMIT 4
 	`
 
 	rows, err := c.db.Query(ctx, query)

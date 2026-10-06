@@ -275,6 +275,7 @@ func (e *EventRepo) UpcomingEvent(ctx context.Context) ([]model.EventListItem, e
 		) p ON p.event_id = e.id
 		WHERE e.start_time >= NOW()
 		ORDER BY e.start_time ASC
+		LIMIT 6
 	`
 
 	rows, err := e.db.Query(ctx, query)

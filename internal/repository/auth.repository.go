@@ -3,12 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
-	"log"
-	"time"
 
 	// "log"
+	"time"
 
-	// "rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/model"
 
 	"github.com/jackc/pgx/v5"
@@ -41,7 +39,7 @@ func (a *AuthRepo) FindAccount(ctx context.Context, email string) (model.User, e
 		&user.AvatarUrl,
 		&user.Role,
 	)
-	log.Println(user)
+	// log.Println(user)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

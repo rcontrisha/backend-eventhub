@@ -24,7 +24,7 @@ func NewAuthService(repo *repository.AuthRepo) *AuthService {
 }
 
 func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest) (dto.LoginResponse, string, error) {
-	log.Printf("Payload - Service: %s", payload)
+	// log.Printf("Payload - Service: %s", payload)
 	result, err := a.repo.FindAccount(ctx, payload.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -32,7 +32,7 @@ func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest
 		}
 		return dto.LoginResponse{}, "", err
 	}
-	log.Printf("Result - Service: %s", result)
+	// log.Printf("Result - Service: %s", result)
 
 	user := dto.LoginResponse{
 		Id:        result.Id,
@@ -43,6 +43,7 @@ func (a *AuthService) LoginService(ctx context.Context, payload dto.LoginRequest
 	}
 
 	if err := pkg.Compare(payload.Password, result.Password); err != nil {
+		log.Println(err)
 		return dto.LoginResponse{}, "", err
 	}
 

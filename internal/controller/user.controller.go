@@ -61,6 +61,19 @@ func (u *UserController) GetUserProfile(ctx *gin.Context) {
 	})
 }
 
+// Change User Profile
+//
+// @Summary				Change User Profile
+// @Description		Update the profile information of the authenticated user
+// @Tags					user
+// @Accept				json
+// @Produce				json
+// @Param					payload	body		dto.UserProfile	true	"User Profile Data"
+// @Router				/user/profile	[patch]
+// @Security			BearerToken
+// @Success				200		{object}	dto.Response
+// @Failure				401		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (u *UserController) ChangeUserProfile(ctx *gin.Context) {
 	var payload dto.UserProfile
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
@@ -101,6 +114,19 @@ func (u *UserController) ChangeUserProfile(ctx *gin.Context) {
 	})
 }
 
+// Change User Password
+//
+// @Summary				Change User Password
+// @Description		Update the password of the authenticated user
+// @Tags					user
+// @Accept				json
+// @Produce				json
+// @Param					payload	body		dto.ChangePassword	true	"Change Password Data"
+// @Router				/user/password	[patch]
+// @Security			BearerToken
+// @Success				200		{object}	dto.Response
+// @Failure				401		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (u *UserController) ChangePassword(ctx *gin.Context) {
 	var payload dto.ChangePassword
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {

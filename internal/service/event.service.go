@@ -22,7 +22,7 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 		req.Page = 1
 	}
 	if req.Limit < 1 || req.Limit > 100 {
-		req.Limit = 10
+		req.Limit = 6
 	}
 
 	rawEvents, total, err := e.repo.GetAllEvents(ctx, req)
@@ -58,7 +58,7 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 		Page:   req.Page,
 		Limit:  req.Limit,
 	}, nil
-}	
+}
 
 func (e *EventService) GetEventDetail(ctx context.Context, id string) (*dto.EventDetailResponse, error) {
 	raw, err := e.repo.GetEventDetail(ctx, id)

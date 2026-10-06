@@ -7,7 +7,7 @@ type GetEventsRequest struct {
 	Location string `form:"location" binding:"omitempty,max=100"`
 	Tag      string `form:"tag" binding:"omitempty,max=50"`
 	Page     int    `form:"page,default=1" binding:"omitempty,min=1"`
-	Limit    int    `form:"limit,default=10" binding:"omitempty,min=1,max=100"`
+	Limit    int    `form:"limit,default=6" binding:"omitempty,min=1,max=100"`
 }
 
 type EventListItemResponse struct {

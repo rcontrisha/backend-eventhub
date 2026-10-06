@@ -64,10 +64,21 @@ func (a *AuthController) LoginController(ctx *gin.Context) {
 	})
 }
 
+// Register
+//
+// @Summary				Register User
+// @Description		Register a new user
+// @Tags					auth
+// @Accept				json
+// @Produce				json
+// @Router				/auth/register	[post]
+// @Param					data	body	dto.RegisterRequest	true	"register data"
+// @Success				200		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (a *AuthController) RegisterController(ctx *gin.Context) {
 	var payload dto.RegisterRequest
 	if e := ctx.ShouldBindWith(&payload, binding.JSON); e != nil {
-		log.Println("Error: ", e.Error())
+		log.Println("[Register Controller]-Binding Error: ", e.Error())
 		ctx.JSON(500, dto.Response{
 			Status:  "failed",
 			Message: e.Error(),
@@ -77,7 +88,7 @@ func (a *AuthController) RegisterController(ctx *gin.Context) {
 	}
 
 	if err := a.service.RegisterService(ctx.Request.Context(), payload); err != nil {
-		log.Println("Error: ", err.Error())
+		log.Println("[Register Controller]-Service Error: ", err.Error())
 		ctx.JSON(500, dto.Response{
 			Status:  "failed",
 			Message: err.Error(),
@@ -92,6 +103,18 @@ func (a *AuthController) RegisterController(ctx *gin.Context) {
 	})
 }
 
+// Logout
+//
+// @Summary				Logout User
+// @Description		Logout the authenticated user and invalidate the token
+// @Tags					auth
+// @Accept				json
+// @Produce				json
+// @Router				/auth/logout	[post]
+// @Security			BearerToken
+// @Success				200		{object}	dto.Response
+// @Failure				401		{object}	dto.Response
+// @Failure				500		{object}	dto.Response
 func (a *AuthController) Logout(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {

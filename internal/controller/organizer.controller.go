@@ -173,11 +173,11 @@ func (o *OrganizerController) EditEvent(ctx *gin.Context) {
 
 	var uploadedImageUrl *string
 	if req.ImageUrl != nil {
-		const maxFileSize = 2 * 1024 * 1024
+		const maxFileSize = 4 * 1024 * 1024
 		if req.ImageUrl.Size > maxFileSize {
 			ctx.JSON(400, dto.Response{
 				Status:  "failed",
-				Message: "Ukuran gambar maksimal adalah 2MB",
+				Message: "Ukuran gambar maksimal adalah 4MB",
 			})
 			return
 		}

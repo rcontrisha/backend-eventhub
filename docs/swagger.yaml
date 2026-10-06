@@ -1,11 +1,39 @@
 basePath: /
 definitions:
+  dto.ChangePassword:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   dto.LoginRequest:
     properties:
       email:
         type: string
       password:
         type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
     type: object
   dto.Response:
     properties:
@@ -15,6 +43,27 @@ definitions:
       message:
         type: string
       status:
+        type: string
+    type: object
+  dto.UserProfile:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
         type: string
     type: object
 host: localhost:8080
@@ -54,6 +103,57 @@ paths:
       summary: Login User
       tags:
       - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout the authenticated user and invalidate the token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Logout User
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: register data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Register User
+      tags:
+      - auth
   /events/{id}:
     get:
       consumes:
@@ -87,6 +187,38 @@ paths:
       summary: Get Event Detail
       tags:
       - events
+  /user/password:
+    patch:
+      consumes:
+      - application/json
+      description: Update the password of the authenticated user
+      parameters:
+      - description: Change Password Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Change User Password
+      tags:
+      - user
   /user/profile:
     get:
       description: Retrieve the profile information of the authenticated user
@@ -108,6 +240,37 @@ paths:
       security:
       - BearerToken: []
       summary: Get User Profile
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: Update the profile information of the authenticated user
+      parameters:
+      - description: User Profile Data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Change User Profile
       tags:
       - user
 securityDefinitions:

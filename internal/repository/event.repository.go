@@ -97,7 +97,9 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 			GROUP BY event_id
 		) p ON p.event_id = e.id
 		%s
-		ORDER BY e.start_time ASC
+		ORDER BY 
+			CASE WHEN e.end_time >= NOW() THEN 0 ELSE 1 END,
+			e.start_time ASC
 		LIMIT $%d OFFSET $%d
 	`, whereClause, limitArgIdx, offsetArgIdx)
 

@@ -61,6 +61,37 @@ func (u *UserController) GetUserProfile(ctx *gin.Context) {
 	})
 }
 
+func (u *UserController) GetUserInfo(ctx *gin.Context) {
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	data, err := u.service.GetUserInfo(ctx, userId)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(500, dto.Response{
+			Status:  "failed",
+			Message: err.Error(),
+			Data:    gin.H{},
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Successfully retrieve user's info.",
+		Data: gin.H{
+			"user": data,
+		},
+	})
+}
+
 // Change User Profile
 //
 // @Summary				Change User Profile

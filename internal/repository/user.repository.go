@@ -115,3 +115,59 @@ func (u *UserRepo) ChangePassword(ctx context.Context, userId, newPwd string) er
 
 	return nil
 }
+
+func (u *UserRepo) GetUserInfo(ctx context.Context, userId string) (*model.UserInfo, error) {
+	query := `
+		SELECT
+			u.id,
+			u.email,
+			u.name,
+			u.avatar_url,
+			u.bio,
+			u.location,
+			u.role,
+			COALESCE((
+				SELECT json_agg(ep.event_id)
+				FROM public.event_participants ep
+				WHERE ep.user_id = u.id
+			), '[]'::json) AS joined_events,
+			COALESCE((
+				SELECT json_agg(se.event_id)
+				FROM public.saved_events se
+				WHERE se.user_id = u.id
+			), '[]'::json) AS saved_events,
+			COALESCE((
+				SELECT json_agg(cm.community_id)
+				FROM public.community_members cm
+				WHERE cm.user_id = u.id
+			), '[]'::json) AS joined_communities,
+			u.created_at,
+			u.updated_at
+		FROM public.users u
+		WHERE u.id = $1
+	`
+
+	var res model.UserInfo
+
+	if err := u.db.QueryRow(ctx, query, userId).Scan(
+		&res.Id,
+		&res.Email,
+		&res.Name,
+		&res.AvatarUrl,
+		&res.Bio,
+		&res.Location,
+		&res.Role,
+		&res.JoinedEvents,
+		&res.SavedEvents,
+		&res.JoinedCommunities,
+		&res.CreatedAt,
+		&res.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+
+	return &res, nil
+}

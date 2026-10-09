@@ -14,4 +14,6 @@ WORKDIR /srv
 
 COPY --from=builder /app/server .
 
+RUN mkdir -p ./public
+
 CMD [ "./server" ]

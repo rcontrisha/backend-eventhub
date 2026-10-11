@@ -150,9 +150,9 @@ func (u *UserService) GetUserInfo(ctx context.Context, userId string) (*dto.User
 		Location:          result.Location,
 		Bio:               result.Bio,
 		Role:              result.Role,
-		JoinedEvents:      result.JoinedEvents,
-		SavedEvents:       result.SavedEvents,
-		JoinedCommunities: result.JoinedCommunities,
+		// JoinedEvents:      result.JoinedEvents,
+		// SavedEvents:       result.SavedEvents,
+		// JoinedCommunities: result.JoinedCommunities,
 		CreatedAt:         result.CreatedAt,
 		UpdatedAt:         result.UpdatedAt,
 	}

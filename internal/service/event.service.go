@@ -17,7 +17,7 @@ func NewEventService(repo *repository.EventRepo) *EventService {
 	}
 }
 
-func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) (*dto.EventListResponse, error) {
+func (c *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) (*dto.EventListResponse, error) {
 	if req.Page < 1 {
 		req.Page = 1
 	}
@@ -25,7 +25,7 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 		req.Limit = 6
 	}
 
-	rawEvents, total, err := e.repo.GetAllEvents(ctx, req)
+	rawEvents, total, err := c.repo.GetAllEvents(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,8 @@ func (e *EventService) GetAllEvents(ctx context.Context, req dto.GetEventsReques
 	}, nil
 }
 
-func (e *EventService) GetEventDetail(ctx context.Context, id string) (*dto.EventDetailResponse, error) {
-	raw, err := e.repo.GetEventDetail(ctx, id)
+func (c *EventService) GetEventDetail(ctx context.Context, id string) (*dto.EventDetailResponse, error) {
+	raw, err := c.repo.GetEventDetail(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -103,27 +103,27 @@ func (e *EventService) GetEventDetail(ctx context.Context, id string) (*dto.Even
 	return &response, nil
 }
 
-func (e *EventService) JoinOrLeaveEvent(ctx context.Context, eventId string, userId string) (string, error) {
-	joined, err := e.repo.IsJoined(ctx, eventId, userId)
+func (c *EventService) JoinOrLeaveEvent(ctx context.Context, eventId string, userId string) (string, error) {
+	joined, err := c.repo.IsJoined(ctx, eventId, userId)
 	if err != nil {
 		return "", err
 	}
 
 	if !joined {
-		if err := e.repo.JoinEvent(ctx, eventId, userId); err != nil {
+		if err := c.repo.JoinEvent(ctx, eventId, userId); err != nil {
 			return "", err
 		}
 		return "joined", nil
 	}
 
-	if err := e.repo.LeaveEvent(ctx, eventId, userId); err != nil {
+	if err := c.repo.LeaveEvent(ctx, eventId, userId); err != nil {
 		return "", err
 	}
 	return "left", nil
 }
 
-func (e *EventService) GetUpcomingEvents(ctx context.Context) ([]dto.EventListItemResponse, error) {
-	result, err := e.repo.UpcomingEvent(ctx)
+func (c *EventService) GetUpcomingEvents(ctx context.Context) ([]dto.EventListItemResponse, error) {
+	result, err := c.repo.UpcomingEvent(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -181,4 +181,35 @@ func (e *EventService) GetMyEvents(ctx context.Context, userId string) ([]dto.Ev
 	}
 
 	return myEvents, nil
+}
+
+func (c *EventService) GetSavedEvents(ctx context.Context, userId string) ([]dto.EventListItemResponse, error) {
+	result, err := c.repo.SavedEvents(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	savedEvents := make([]dto.EventListItemResponse, 0, len(result))
+	for _, item := range result {
+		var tags []string
+		if err := json.Unmarshal(item.TagsRaw, &tags); err != nil {
+			return nil, err
+		}
+
+		savedEvents = append(savedEvents, dto.EventListItemResponse{
+			Id:             item.Id,
+			Title:          item.Title,
+			ImageURL:       item.ImageURL,
+			Tags:           tags,
+			Capacity:       item.Capacity,
+			AttendeesCount: item.AttendeesCount,
+			StartTime:      item.StartTime,
+			EndTime:        item.EndTime,
+			Location:       item.Location,
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+		})
+	}
+
+	return savedEvents, nil
 }

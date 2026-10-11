@@ -25,5 +25,6 @@ func CommunityRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	communityRouter.GET(":id/upcoming-events", controller.GetCommunityUpcomingEvents)
 	communityRouter.GET(":id/members", controller.GetCommunityMembers)
 
+	communityRouter.GET("my-communities", middleware.CheckToken(rdb), controller.GetMyCommunities)
 	communityRouter.POST(":communityId/toggle-join", middleware.CheckToken(rdb), controller.JoinOrLeaveController)
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
 	"rcontrisha/backend-eventhub/pkg"
@@ -199,8 +200,40 @@ func (c *CommunityController) JoinOrLeaveController(ctx *gin.Context) {
 		Status:  "success",
 		Message: fmt.Sprintf("Successfully %s the community.", action),
 		Data: gin.H{
-			"action":   action,
+			"action":       action,
 			"community_id": communityId,
+		},
+	})
+}
+
+func (c *CommunityController) GetMyCommunities(ctx *gin.Context) {
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	log.Println(userId)
+
+	result, err := c.service.GetMyCommunities(ctx, userId)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch events: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(200, dto.Response{
+		Status:  "success",
+		Message: "Events retrieved successfully",
+		Data: gin.H{
+			"communities": result,
 		},
 	})
 }

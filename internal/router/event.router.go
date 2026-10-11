@@ -24,4 +24,5 @@ func EventRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 
 	eventRouter.POST(":eventId/toggle-join", middleware.CheckToken(rdb), controller.JoinOrLeaveController)
 	eventRouter.GET("my-events", middleware.CheckToken(rdb), controller.GetMyEvents)
+	eventRouter.GET("saved-events", middleware.CheckToken(rdb), controller.GetSavedEvents)
 }

@@ -23,9 +23,9 @@ type UserInfo struct {
 	Location     *string   `db:"location"`
 	Bio          *string   `db:"bio"`
 	Role         string    `db:"role"`
-	JoinedEvents []string  `db:"joined_events"`
-	SavedEvents []string  `db:"saved_events"`
-	JoinedCommunities []string  `db:"joined_communities"`
+	// JoinedEvents []string  `db:"joined_events"`
+	// SavedEvents []string  `db:"saved_events"`
+	// JoinedCommunities []string  `db:"joined_communities"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
 }

@@ -22,9 +22,9 @@ type UserInfo struct {
 	Location          *string   `json:"location"`
 	Bio               *string   `json:"bio"`
 	Role              string    `json:"role"`
-	JoinedEvents      []string  `json:"joined_events"`
-	SavedEvents       []string  `json:"saved_events"`
-	JoinedCommunities []string  `json:"joined_communities"`
+	// JoinedEvents      []string  `json:"joined_events"`
+	// SavedEvents       []string  `json:"saved_events"`
+	// JoinedCommunities []string  `json:"joined_communities"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
 }

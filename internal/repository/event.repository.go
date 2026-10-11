@@ -372,3 +372,65 @@ func (e *EventRepo) MyEvent(ctx context.Context, userId string) ([]model.EventLi
 
 	return myEvents, nil
 }
+
+func (e *EventRepo) SavedEvents(ctx context.Context, userId string) ([]model.EventListItem, error) {
+	query := `
+		SELECT
+			e.id,
+			e.title,
+			e.image_url,
+			COALESCE(
+				(
+					SELECT json_agg(t.name ORDER BY t.name ASC)
+					FROM public.event_tags et
+					JOIN public.tags t ON t.id = et.tag_id
+					WHERE et.event_id = e.id
+				), '[]'::json
+			) AS tags,
+			e.capacity,
+			COALESCE(p.attendees_count, 0) AS attendees_count,
+			e.start_time,
+			e.end_time,
+			e.location
+		FROM public.events e
+		JOIN public.saved_events se ON se.event_id = e.id
+		LEFT JOIN (
+			SELECT 
+				event_id, 
+				COUNT(*) AS attendees_count
+			FROM public.event_participants
+			GROUP BY event_id
+		) p ON p.event_id = e.id
+		WHERE se.user_id = $1
+		ORDER BY e.start_time DESC
+		`
+	rows, err := e.db.Query(ctx, query, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var myEvents []model.EventListItem
+	for rows.Next() {
+		var event model.EventListItem
+		if err := rows.Scan(
+			&event.Id,
+			&event.Title,
+			&event.ImageURL,
+			&event.TagsRaw,
+			&event.Capacity,
+			&event.AttendeesCount,
+			&event.StartTime,
+			&event.EndTime,
+			&event.Location,
+		); err != nil {
+			return nil, err
+		}
+		myEvents = append(myEvents, event)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return myEvents, nil
+}

@@ -394,3 +394,72 @@ func (c *CommunityRepo) LeaveCommunity(ctx context.Context, communityId, userId 
 	}
 	return nil
 }
+
+func (c *CommunityRepo) MyCommunity(ctx context.Context, userId string) ([]model.CommunityListItem, error) {
+	query := `
+		SELECT
+			c.id,
+			c.name,
+			c.description,
+			c.banner_url,
+			COALESCE(
+				(
+					SELECT json_agg(t.name ORDER BY t.name ASC)
+					FROM community_tags ct
+					JOIN tags t ON t.id = ct.tag_id
+					WHERE ct.community_id = c.id
+				), '[]'::json
+			) AS tags,
+			COALESCE(m.members_count, 0) AS members_count,
+			COALESCE(e.upcoming_events, 0) AS upcoming_events,
+			c.created_at,
+			c.updated_at
+		FROM communities c
+		JOIN public.community_members cm ON cm.community_id = c.id
+		LEFT JOIN (
+			SELECT 
+				community_id, 
+				COUNT(*) AS members_count
+			FROM community_members
+			GROUP BY community_id
+		) m ON m.community_id = c.id
+		LEFT JOIN (
+			SELECT 
+				community_id, 
+				COUNT(*) AS upcoming_events
+			FROM events
+			WHERE start_time >= NOW()
+			GROUP BY community_id
+		) e ON e.community_id = c.id
+		WHERE cm.user_id = $1
+		`
+	rows, err := c.db.Query(ctx, query, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var myCommunities []model.CommunityListItem
+	for rows.Next() {
+		var community model.CommunityListItem
+		if err := rows.Scan(
+			&community.Id,
+			&community.Name,
+			&community.Description,
+			&community.BannerUrl,
+			&community.TagsRaw,
+			&community.MembersCount,
+			&community.UpcomingEvents,
+			&community.CreatedAt,
+			&community.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		myCommunities = append(myCommunities, community)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return myCommunities, nil
+}

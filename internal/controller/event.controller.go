@@ -21,7 +21,7 @@ func NewEventController(service *service.EventService) *EventController {
 	}
 }
 
-func (e *EventController) GetAllEvents(ctx *gin.Context) {
+func (c *EventController) GetAllEvents(ctx *gin.Context) {
 	var req dto.GetEventsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.Response{
@@ -32,7 +32,7 @@ func (e *EventController) GetAllEvents(ctx *gin.Context) {
 		return
 	}
 
-	result, err := e.service.GetAllEvents(ctx.Request.Context(), req)
+	result, err := c.service.GetAllEvents(ctx.Request.Context(), req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{
 			Status:  "error",
@@ -67,7 +67,7 @@ func (e *EventController) GetAllEvents(ctx *gin.Context) {
 // @Failure				400		{object}	dto.Response
 // @Failure				404		{object}	dto.Response
 // @Failure				500		{object}	dto.Response
-func (e *EventController) GetEventDetail(ctx *gin.Context) {
+func (c *EventController) GetEventDetail(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -79,7 +79,7 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 		return
 	}
 
-	result, err := e.service.GetEventDetail(ctx.Request.Context(), req.Id)
+	result, err := c.service.GetEventDetail(ctx.Request.Context(), req.Id)
 	if err != nil {
 		if err.Error() == "event not found" {
 			ctx.JSON(404, dto.Response{
@@ -107,7 +107,7 @@ func (e *EventController) GetEventDetail(ctx *gin.Context) {
 	})
 }
 
-func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
+func (c *EventController) JoinOrLeaveController(ctx *gin.Context) {
 	eventId := ctx.Param("eventId")
 
 	token, exist := ctx.Get("token")
@@ -120,7 +120,7 @@ func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
 
 	claims := token.(pkg.JWTClaims)
 	userId := claims.Id
-	action, err := e.service.JoinOrLeaveEvent(ctx, eventId, userId)
+	action, err := c.service.JoinOrLeaveEvent(ctx, eventId, userId)
 	if err != nil {
 		ctx.JSON(500, dto.Response{
 			Status:  "failed",
@@ -140,8 +140,8 @@ func (e *EventController) JoinOrLeaveController(ctx *gin.Context) {
 	})
 }
 
-func (e *EventController) GetUpcomingEvents(ctx *gin.Context) {
-	result, err := e.service.GetUpcomingEvents(ctx)
+func (c *EventController) GetUpcomingEvents(ctx *gin.Context) {
+	result, err := c.service.GetUpcomingEvents(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{
 			Status:  "error",
@@ -160,7 +160,7 @@ func (e *EventController) GetUpcomingEvents(ctx *gin.Context) {
 	})
 }
 
-func (e *EventController) GetMyEvents(ctx *gin.Context) {
+func (c *EventController) GetMyEvents(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
 		ctx.JSON(401, dto.Response{
@@ -173,7 +173,39 @@ func (e *EventController) GetMyEvents(ctx *gin.Context) {
 	userId := claims.Id
 	log.Println(userId)
 
-	result, err := e.service.GetMyEvents(ctx, userId)
+	result, err := c.service.GetMyEvents(ctx, userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Status:  "error",
+			Message: "Failed to fetch events: " + err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Status:  "success",
+		Message: "Events retrieved successfully",
+		Data: gin.H{
+			"events": result,
+		},
+	})
+}
+
+func (c *EventController) GetSavedEvents(ctx *gin.Context) {
+	token, exist := ctx.Get("token")
+	if !exist {
+		ctx.JSON(401, dto.Response{
+			Status:  "failed",
+			Message: "Token Data Not Found in Context.",
+		})
+	}
+
+	claims := token.(pkg.JWTClaims)
+	userId := claims.Id
+	log.Println(userId)
+
+	result, err := c.service.GetSavedEvents(ctx, userId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.Response{
 			Status:  "error",

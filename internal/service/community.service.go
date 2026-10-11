@@ -67,7 +67,7 @@ func (c *CommunityService) GetCommunityDetail(ctx context.Context, communityId s
 	if err != nil {
 		return nil, err
 	}
-	
+
 	response := dto.CommunityDetailResponse{
 		Id:             raw.Id,
 		Name:           raw.Name,
@@ -148,15 +148,15 @@ func (c *CommunityService) GetPopularCommunities(ctx context.Context) ([]dto.Com
 		}
 
 		communities = append(communities, dto.CommunityListItemResponse{
-			Id: community.Id,
-			Name: community.Name,
-			Description: community.Description,
-			BannerUrl: community.BannerUrl,
-			Tags: tags,
-			MembersCount: community.MembersCount,
+			Id:             community.Id,
+			Name:           community.Name,
+			Description:    community.Description,
+			BannerUrl:      community.BannerUrl,
+			Tags:           tags,
+			MembersCount:   community.MembersCount,
 			UpcomingEvents: community.UpcomingEvents,
-			CreatedAt: community.CreatedAt,
-			UpdatedAt: community.UpdatedAt,
+			CreatedAt:      community.CreatedAt,
+			UpdatedAt:      community.UpdatedAt,
 		})
 	}
 
@@ -180,4 +180,33 @@ func (c *CommunityService) JoinOrLeaveCommunity(ctx context.Context, communityId
 		return "", err
 	}
 	return "left", nil
+}
+
+func (c *CommunityService) GetMyCommunities(ctx context.Context, userId string) ([]dto.CommunityListItemResponse, error) {
+	result, err := c.repo.MyCommunity(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	myCommunities := make([]dto.CommunityListItemResponse, 0, len(result))
+	for _, item := range result {
+		var tags []string
+		if err := json.Unmarshal(item.TagsRaw, &tags); err != nil {
+			return nil, err
+		}
+
+		myCommunities = append(myCommunities, dto.CommunityListItemResponse{
+			Id:             item.Id,
+			Name:           item.Name,
+			Description:    item.Description,
+			BannerUrl:      item.BannerUrl,
+			Tags:           tags,
+			MembersCount:   item.MembersCount,
+			UpcomingEvents: item.UpcomingEvents,
+			CreatedAt:      item.CreatedAt,
+			UpdatedAt:      item.UpdatedAt,
+		})
+	}
+
+	return myCommunities, nil
 }

@@ -126,21 +126,6 @@ func (u *UserRepo) GetUserInfo(ctx context.Context, userId string) (*model.UserI
 			u.bio,
 			u.location,
 			u.role,
-			COALESCE((
-				SELECT json_agg(ep.event_id)
-				FROM public.event_participants ep
-				WHERE ep.user_id = u.id
-			), '[]'::json) AS joined_events,
-			COALESCE((
-				SELECT json_agg(se.event_id)
-				FROM public.saved_events se
-				WHERE se.user_id = u.id
-			), '[]'::json) AS saved_events,
-			COALESCE((
-				SELECT json_agg(cm.community_id)
-				FROM public.community_members cm
-				WHERE cm.user_id = u.id
-			), '[]'::json) AS joined_communities,
 			u.created_at,
 			u.updated_at
 		FROM public.users u
@@ -157,9 +142,6 @@ func (u *UserRepo) GetUserInfo(ctx context.Context, userId string) (*model.UserI
 		&res.Bio,
 		&res.Location,
 		&res.Role,
-		&res.JoinedEvents,
-		&res.SavedEvents,
-		&res.JoinedCommunities,
 		&res.CreatedAt,
 		&res.UpdatedAt,
 	); err != nil {

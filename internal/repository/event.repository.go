@@ -66,7 +66,10 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 	}
 
 	offset := (req.Page - 1) * req.Limit
-	args = append(args, req.Limit, offset)
+	dataArgs := make([]any, len(args))
+	copy(dataArgs, args)
+
+	dataArgs = append(dataArgs, req.Limit, offset)
 	limitArgIdx := argIdx
 	offsetArgIdx := argIdx + 1
 
@@ -103,7 +106,7 @@ func (e *EventRepo) GetAllEvents(ctx context.Context, req dto.GetEventsRequest) 
 		LIMIT $%d OFFSET $%d
 	`, whereClause, limitArgIdx, offsetArgIdx)
 
-	rows, err := e.db.Query(ctx, dataQuery, args...)
+	rows, err := e.db.Query(ctx, dataQuery, dataArgs...)
 	if err != nil {
 		return nil, 0, err
 	}

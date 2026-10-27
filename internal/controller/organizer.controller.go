@@ -26,6 +26,19 @@ func NewOrganizerController(service *service.OrganizerService) *OrganizerControl
 	}
 }
 
+// Get Organizer Dashboard
+//
+// @Summary		Get Organizer Dashboard
+// @Description	Retrieve dashboard statistics, event charts, and upcoming events for the authenticated organizer
+// @Tags		organizer
+// @Accept		json
+// @Produce		json
+// @Router		/organizer/dashboard	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		403	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (o *OrganizerController) GetDashboard(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
@@ -54,6 +67,30 @@ func (o *OrganizerController) GetDashboard(ctx *gin.Context) {
 	})
 }
 
+// Create Event
+//
+// @Summary		Create Event
+// @Description	Create an event with an image upload. Image must be JPG, JPEG, or PNG and no larger than 4 MB.
+// @Tags		organizer
+// @Accept		multipart/form-data
+// @Produce		json
+// @Param		title			formData	string	true	"Event title"				minLength(3) maxLength(150) example(Go Community Meetup)
+// @Param		desc			formData	string	true	"Event description"			minLength(10) example(A meetup for Go developers.)
+// @Param		image_url		formData	file	true	"Event cover image (JPG, JPEG, or PNG; max 4 MB)"
+// @Param		community_id	formData	string	false	"Community UUID"				format(uuid) example(770e8400-e29b-41d4-a716-446655440000)
+// @Param		start_time		formData	string	true	"Event start time (RFC3339)"	format(date-time) example(2026-11-15T09:00:00Z)
+// @Param		end_time		formData	string	true	"Event end time (RFC3339)"		format(date-time) example(2026-11-15T12:00:00Z)
+// @Param		location		formData	string	true	"Event location"				maxLength(200) example(Jakarta, Indonesia)
+// @Param		capacity		formData	int		true	"Maximum number of attendees"	minimum(1) example(100)
+// @Param		speakers		formData	string	false	"Speakers data as a JSON string"	example([{"name":"Ayu Putri","role":"Software Engineer"}])
+// @Param		tags			formData	[]string	false	"Tag UUIDs"
+// @Router		/organizer/event	[post]
+// @Security	BearerToken
+// @Success		201	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		403	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (o *OrganizerController) CreateEvent(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
@@ -137,6 +174,31 @@ func (o *OrganizerController) CreateEvent(ctx *gin.Context) {
 	})
 }
 
+// Edit Event
+//
+// @Summary		Edit Event
+// @Description	Update event fields using multipart form data. All fields are optional; uploaded images must be JPG, JPEG, or PNG and no larger than 4 MB.
+// @Tags		organizer
+// @Accept		multipart/form-data
+// @Produce		json
+// @Param		id				path		string	true	"Event UUID"						format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Param		title			formData	string	false	"Event title"						minLength(3) maxLength(150) example(Go Community Meetup)
+// @Param		desc			formData	string	false	"Event description"					minLength(10) example(A meetup for Go developers.)
+// @Param		image_url		formData	file	false	"Replacement cover image (JPG, JPEG, or PNG; max 4 MB)"
+// @Param		community_id	formData	string	false	"Community UUID"						format(uuid) example(770e8400-e29b-41d4-a716-446655440000)
+// @Param		start_time		formData	string	false	"Event start time (RFC3339)"			format(date-time) example(2026-11-15T09:00:00Z)
+// @Param		end_time		formData	string	false	"Event end time (RFC3339)"				format(date-time) example(2026-11-15T12:00:00Z)
+// @Param		location		formData	string	false	"Event location"						maxLength(200) example(Jakarta, Indonesia)
+// @Param		capacity		formData	int		false	"Maximum number of attendees"			minimum(1) example(100)
+// @Param		speakers		formData	string	false	"Speakers data as a JSON string"		example([{"name":"Ayu Putri","role":"Software Engineer"}])
+// @Param		tags			formData	[]string	false	"Tag UUIDs"
+// @Router		/organizer/event/{id}/edit	[patch]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		403	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (o *OrganizerController) EditEvent(ctx *gin.Context) {
 	var req dto.EditEventRequest
 

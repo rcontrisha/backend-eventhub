@@ -6,33 +6,33 @@ import (
 )
 
 type DashboardStatsResponse struct {
-	TotalEvents    int     `json:"total_events"`
-	TotalAttendees int     `json:"total_attendees"`
-	AvgFillRate    float64 `json:"avg_fill_rate"`
-	EventViews     int     `json:"event_views"`
+	TotalEvents    int     `json:"total_events" example:"12"`
+	TotalAttendees int     `json:"total_attendees" example:"480"`
+	AvgFillRate    float64 `json:"avg_fill_rate" example:"72.5"`
+	EventViews     int     `json:"event_views" example:"3200"`
 }
 
 type DashboardChartItem struct {
-	Month string `json:"month"`
-	Total int    `json:"total"`
+	Month string `json:"month" example:"2026-10"`
+	Total int    `json:"total" example:"4"`
 }
 
 type DashboardEventItemResponse struct {
-	ID             string    `json:"id"`
-	Title          string    `json:"title"`
-	ImageURL       *string   `json:"image_url"`
-	Location       string    `json:"location"`
-	StartTime      time.Time `json:"start_time"`
-	Capacity       int       `json:"capacity"`
-	AttendeesCount int       `json:"attendees_count"`
+	ID             string    `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Title          string    `json:"title" example:"Go Community Meetup"`
+	ImageURL       *string   `json:"image_url" example:"https://example.com/events/go-meetup.png"`
+	Location       string    `json:"location" example:"Jakarta, Indonesia"`
+	StartTime      time.Time `json:"start_time" example:"2026-11-15T09:00:00Z"`
+	Capacity       int       `json:"capacity" example:"100"`
+	AttendeesCount int       `json:"attendees_count" example:"42"`
 }
 
 type DashboardUpcomingItemResponse struct {
-	ID             string    `json:"id"`
-	Title          string    `json:"title"`
-	StartTime      time.Time `json:"start_time"`
-	Capacity       int       `json:"capacity"`
-	AttendeesCount int       `json:"attendees_count"`
+	ID             string    `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Title          string    `json:"title" example:"Go Community Meetup"`
+	StartTime      time.Time `json:"start_time" example:"2026-11-15T09:00:00Z"`
+	Capacity       int       `json:"capacity" example:"100"`
+	AttendeesCount int       `json:"attendees_count" example:"42"`
 }
 
 type OrganizerDashboardResponse struct {

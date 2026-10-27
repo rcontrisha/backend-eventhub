@@ -17,6 +17,19 @@ func NewAdminController(adminService *service.AdminService) *AdminController {
 	}
 }
 
+// Get Admin Dashboard Stats
+//
+// @Summary		Get Admin Dashboard Stats
+// @Description	Retrieve platform-wide user, event, community, and attendance statistics
+// @Tags		admin
+// @Accept		json
+// @Produce		json
+// @Router		/admin/dashboard	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		403	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (ac *AdminController) GetDashboardStats(ctx *gin.Context) {
 	stats, err := ac.adminService.GetDashboardStats(ctx.Request.Context())
 	if err != nil {

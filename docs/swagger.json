@@ -9,6 +9,52 @@
     "host": "localhost:8181",
     "basePath": "/",
     "paths": {
+        "/admin/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Retrieve platform-wide user, event, community, and attendance statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get Admin Dashboard Stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate user and return token",
@@ -754,6 +800,336 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizer/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Retrieve dashboard statistics, event charts, and upcoming events for the authenticated organizer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organizer"
+                ],
+                "summary": "Get Organizer Dashboard",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizer/event": {
+            "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Create an event with an image upload. Image must be JPG, JPEG, or PNG and no larger than 4 MB.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organizer"
+                ],
+                "summary": "Create Event",
+                "parameters": [
+                    {
+                        "maxLength": 150,
+                        "minLength": 3,
+                        "type": "string",
+                        "example": "Go Community Meetup",
+                        "description": "Event title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "minLength": 10,
+                        "type": "string",
+                        "example": "A meetup for Go developers.",
+                        "description": "Event description",
+                        "name": "desc",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Event cover image (JPG, JPEG, or PNG; max 4 MB)",
+                        "name": "image_url",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "770e8400-e29b-41d4-a716-446655440000",
+                        "description": "Community UUID",
+                        "name": "community_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-11-15T09:00:00Z",
+                        "description": "Event start time (RFC3339)",
+                        "name": "start_time",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-11-15T12:00:00Z",
+                        "description": "Event end time (RFC3339)",
+                        "name": "end_time",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 200,
+                        "type": "string",
+                        "example": "Jakarta, Indonesia",
+                        "description": "Event location",
+                        "name": "location",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "example": 100,
+                        "description": "Maximum number of attendees",
+                        "name": "capacity",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "[{\"name\":\"Ayu Putri\",\"role\":\"Software Engineer\"}]",
+                        "description": "Speakers data as a JSON string",
+                        "name": "speakers",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Tag UUIDs",
+                        "name": "tags",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizer/event/{id}/edit": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Update event fields using multipart form data. All fields are optional; uploaded images must be JPG, JPEG, or PNG and no larger than 4 MB.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organizer"
+                ],
+                "summary": "Edit Event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "description": "Event UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 150,
+                        "minLength": 3,
+                        "type": "string",
+                        "example": "Go Community Meetup",
+                        "description": "Event title",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "minLength": 10,
+                        "type": "string",
+                        "example": "A meetup for Go developers.",
+                        "description": "Event description",
+                        "name": "desc",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Replacement cover image (JPG, JPEG, or PNG; max 4 MB)",
+                        "name": "image_url",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "770e8400-e29b-41d4-a716-446655440000",
+                        "description": "Community UUID",
+                        "name": "community_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-11-15T09:00:00Z",
+                        "description": "Event start time (RFC3339)",
+                        "name": "start_time",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-11-15T12:00:00Z",
+                        "description": "Event end time (RFC3339)",
+                        "name": "end_time",
+                        "in": "formData"
+                    },
+                    {
+                        "maxLength": 200,
+                        "type": "string",
+                        "example": "Jakarta, Indonesia",
+                        "description": "Event location",
+                        "name": "location",
+                        "in": "formData"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "example": 100,
+                        "description": "Maximum number of attendees",
+                        "name": "capacity",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "example": "[{\"name\":\"Ayu Putri\",\"role\":\"Software Engineer\"}]",
+                        "description": "Speakers data as a JSON string",
+                        "name": "speakers",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Tag UUIDs",
+                        "name": "tags",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/dto.Response"
                         }

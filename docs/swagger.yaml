@@ -87,6 +87,35 @@ info:
   title: API Eventhub
   version: "1.0"
 paths:
+  /admin/dashboard:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve platform-wide user, event, community, and attendance statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Get Admin Dashboard Stats
+      tags:
+      - admin
   /auth/login:
     post:
       consumes:
@@ -590,6 +619,238 @@ paths:
       summary: Get Upcoming Events
       tags:
       - events
+  /organizer/dashboard:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve dashboard statistics, event charts, and upcoming events
+        for the authenticated organizer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Get Organizer Dashboard
+      tags:
+      - organizer
+  /organizer/event:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create an event with an image upload. Image must be JPG, JPEG,
+        or PNG and no larger than 4 MB.
+      parameters:
+      - description: Event title
+        example: Go Community Meetup
+        in: formData
+        maxLength: 150
+        minLength: 3
+        name: title
+        required: true
+        type: string
+      - description: Event description
+        example: A meetup for Go developers.
+        in: formData
+        minLength: 10
+        name: desc
+        required: true
+        type: string
+      - description: Event cover image (JPG, JPEG, or PNG; max 4 MB)
+        in: formData
+        name: image_url
+        required: true
+        type: file
+      - description: Community UUID
+        example: 770e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: formData
+        name: community_id
+        type: string
+      - description: Event start time (RFC3339)
+        example: "2026-11-15T09:00:00Z"
+        format: date-time
+        in: formData
+        name: start_time
+        required: true
+        type: string
+      - description: Event end time (RFC3339)
+        example: "2026-11-15T12:00:00Z"
+        format: date-time
+        in: formData
+        name: end_time
+        required: true
+        type: string
+      - description: Event location
+        example: Jakarta, Indonesia
+        in: formData
+        maxLength: 200
+        name: location
+        required: true
+        type: string
+      - description: Maximum number of attendees
+        example: 100
+        in: formData
+        minimum: 1
+        name: capacity
+        required: true
+        type: integer
+      - description: Speakers data as a JSON string
+        example: '[{"name":"Ayu Putri","role":"Software Engineer"}]'
+        in: formData
+        name: speakers
+        type: string
+      - collectionFormat: csv
+        description: Tag UUIDs
+        in: formData
+        items:
+          type: string
+        name: tags
+        type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Create Event
+      tags:
+      - organizer
+  /organizer/event/{id}/edit:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Update event fields using multipart form data. All fields are optional;
+        uploaded images must be JPG, JPEG, or PNG and no larger than 4 MB.
+      parameters:
+      - description: Event UUID
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event title
+        example: Go Community Meetup
+        in: formData
+        maxLength: 150
+        minLength: 3
+        name: title
+        type: string
+      - description: Event description
+        example: A meetup for Go developers.
+        in: formData
+        minLength: 10
+        name: desc
+        type: string
+      - description: Replacement cover image (JPG, JPEG, or PNG; max 4 MB)
+        in: formData
+        name: image_url
+        type: file
+      - description: Community UUID
+        example: 770e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: formData
+        name: community_id
+        type: string
+      - description: Event start time (RFC3339)
+        example: "2026-11-15T09:00:00Z"
+        format: date-time
+        in: formData
+        name: start_time
+        type: string
+      - description: Event end time (RFC3339)
+        example: "2026-11-15T12:00:00Z"
+        format: date-time
+        in: formData
+        name: end_time
+        type: string
+      - description: Event location
+        example: Jakarta, Indonesia
+        in: formData
+        maxLength: 200
+        name: location
+        type: string
+      - description: Maximum number of attendees
+        example: 100
+        in: formData
+        minimum: 1
+        name: capacity
+        type: integer
+      - description: Speakers data as a JSON string
+        example: '[{"name":"Ayu Putri","role":"Software Engineer"}]'
+        in: formData
+        name: speakers
+        type: string
+      - collectionFormat: csv
+        description: Tag UUIDs
+        in: formData
+        items:
+          type: string
+        name: tags
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Edit Event
+      tags:
+      - organizer
   /user/change-password:
     patch:
       consumes:

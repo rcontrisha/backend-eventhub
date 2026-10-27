@@ -1,7 +1,7 @@
 package dto
 
 type Response struct {
-	Status  string                 `json:"status"`
-	Message string                 `json:"message"`
-	Data    map[string]interface{} `json:"data"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
 }

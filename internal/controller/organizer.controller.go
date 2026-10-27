@@ -50,9 +50,7 @@ func (o *OrganizerController) GetDashboard(ctx *gin.Context) {
 	ctx.JSON(200, dto.Response{
 		Status:  "success",
 		Message: "Successfully retrieve organizer's data.",
-		Data: gin.H{
-			"data": data,
-		},
+		Data:    data,
 	})
 }
 

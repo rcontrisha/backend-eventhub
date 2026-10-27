@@ -168,6 +168,236 @@ paths:
       summary: Register User
       tags:
       - auth
+  /communities:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of communities with optional search and
+        filters
+      parameters:
+      - description: Search communities by name
+        example: Go community
+        in: query
+        maxLength: 100
+        name: search
+        type: string
+      - description: Filter communities by location
+        example: Jakarta
+        in: query
+        maxLength: 100
+        name: location
+        type: string
+      - description: Filter communities by tag
+        example: technology
+        in: query
+        maxLength: 50
+        name: tag
+        type: string
+      - description: 'Page number (default: 1)'
+        example: 1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 'Number of communities per page (default: 10, max: 100)'
+        example: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Get All Communities
+      tags:
+      - communities
+  /communities/{communityId}/toggle-join:
+    post:
+      consumes:
+      - application/json
+      description: Join a community if not a member, or leave it if already joined
+      parameters:
+      - description: Community ID (UUID)
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: path
+        name: communityId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Toggle Community Membership
+      tags:
+      - communities
+  /communities/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details of a specific community
+      parameters:
+      - description: Community ID (UUID)
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Get Community Detail
+      tags:
+      - communities
+  /communities/{id}/members:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve members of a community
+      parameters:
+      - description: Community ID (UUID)
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Get Community Members
+      tags:
+      - communities
+  /communities/{id}/upcoming-events:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve upcoming events associated with a community
+      parameters:
+      - description: Community ID (UUID)
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Get Community Upcoming Events
+      tags:
+      - communities
+  /communities/my-communities:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve communities the authenticated user has joined
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      security:
+      - BearerToken: []
+      summary: Get My Communities
+      tags:
+      - communities
+  /communities/popular:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve popular communities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Get Popular Communities
+      tags:
+      - communities
   /events:
     get:
       consumes:

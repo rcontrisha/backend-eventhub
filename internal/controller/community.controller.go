@@ -20,6 +20,22 @@ func NewCommunityController(service *service.CommunityService) *CommunityControl
 	}
 }
 
+// Get All Communities
+//
+// @Summary		Get All Communities
+// @Description	Retrieve a paginated list of communities with optional search and filters
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Param		search	query	string	false	"Search communities by name"	example(Go community) maxLength(100)
+// @Param		location	query	string	false	"Filter communities by location"	example(Jakarta) maxLength(100)
+// @Param		tag		query	string	false	"Filter communities by tag"	example(technology) maxLength(50)
+// @Param		page	query	int		false	"Page number (default: 1)"	minimum(1) example(1)
+// @Param		limit	query	int		false	"Number of communities per page (default: 10, max: 100)"	minimum(1) maximum(100) example(10)
+// @Router		/communities	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetAllCommunities(ctx *gin.Context) {
 	var req dto.GetCommunityRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -53,6 +69,19 @@ func (c *CommunityController) GetAllCommunities(ctx *gin.Context) {
 	})
 }
 
+// Get Community Detail
+//
+// @Summary		Get Community Detail
+// @Description	Retrieve details of a specific community
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Param		id	path	string	true	"Community ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/communities/{id}	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		404	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetCommunityDetail(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 
@@ -93,6 +122,18 @@ func (c *CommunityController) GetCommunityDetail(ctx *gin.Context) {
 	})
 }
 
+// Get Community Upcoming Events
+//
+// @Summary		Get Community Upcoming Events
+// @Description	Retrieve upcoming events associated with a community
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Param		id	path	string	true	"Community ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/communities/{id}/upcoming-events	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetCommunityUpcomingEvents(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -123,6 +164,18 @@ func (c *CommunityController) GetCommunityUpcomingEvents(ctx *gin.Context) {
 	})
 }
 
+// Get Community Members
+//
+// @Summary		Get Community Members
+// @Description	Retrieve members of a community
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Param		id	path	string	true	"Community ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/communities/{id}/members	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetCommunityMembers(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -153,6 +206,16 @@ func (c *CommunityController) GetCommunityMembers(ctx *gin.Context) {
 	})
 }
 
+// Get Popular Communities
+//
+// @Summary		Get Popular Communities
+// @Description	Retrieve popular communities
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Router		/communities/popular	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetPopularCommunities(ctx *gin.Context) {
 	result, err := c.service.GetPopularCommunities(ctx)
 	if err != nil {
@@ -173,6 +236,19 @@ func (c *CommunityController) GetPopularCommunities(ctx *gin.Context) {
 	})
 }
 
+// Toggle Community Membership
+//
+// @Summary		Toggle Community Membership
+// @Description	Join a community if not a member, or leave it if already joined
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Param		communityId	path	string	true	"Community ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/communities/{communityId}/toggle-join	[post]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) JoinOrLeaveController(ctx *gin.Context) {
 	communityId := ctx.Param("communityId")
 
@@ -206,6 +282,18 @@ func (c *CommunityController) JoinOrLeaveController(ctx *gin.Context) {
 	})
 }
 
+// Get My Communities
+//
+// @Summary		Get My Communities
+// @Description	Retrieve communities the authenticated user has joined
+// @Tags		communities
+// @Accept		json
+// @Produce		json
+// @Router		/communities/my-communities	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *CommunityController) GetMyCommunities(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {

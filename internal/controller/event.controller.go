@@ -21,6 +21,22 @@ func NewEventController(service *service.EventService) *EventController {
 	}
 }
 
+// Get All Events
+//
+// @Summary		Get All Events
+// @Description	Retrieve a paginated list of events with optional search and filters
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Param		search	query	string	false	"Search events by title"	example(Go meetup) maxLength(100)
+// @Param		location	query	string	false	"Filter events by location"	example(Jakarta) maxLength(100)
+// @Param		tag		query	string	false	"Filter events by tag"	example(technology) maxLength(50)
+// @Param		page	query	int		false	"Page number (default: 1)"	minimum(1) example(1)
+// @Param		limit	query	int		false	"Number of events per page (default: 6, max: 100)"	minimum(1) maximum(100) example(6)
+// @Router		/events	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) GetAllEvents(ctx *gin.Context) {
 	var req dto.GetEventsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -54,19 +70,19 @@ func (c *EventController) GetAllEvents(ctx *gin.Context) {
 	})
 }
 
-// Event Detail
+// Get Event Detail
 //
-// @Summary				Get Event Detail
-// @Description		Retrieve details of a specific event
-// @Tags					events
-// @Accept				json
-// @Produce				json
-// @Router				/events/{id}	[get]
-// @Param					id	path	string	true	"Event ID"
-// @Success				200		{object}	dto.Response
-// @Failure				400		{object}	dto.Response
-// @Failure				404		{object}	dto.Response
-// @Failure				500		{object}	dto.Response
+// @Summary		Get Event Detail
+// @Description	Retrieve details of a specific event
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Param		id	path	string	true	"Event ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/events/{id}	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		400	{object}	dto.Response
+// @Failure		404	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) GetEventDetail(ctx *gin.Context) {
 	var req dto.GetEventDetailRequest
 
@@ -107,6 +123,19 @@ func (c *EventController) GetEventDetail(ctx *gin.Context) {
 	})
 }
 
+// Toggle Event Participation
+//
+// @Summary		Toggle Event Participation
+// @Description	Join an event if not participating, or leave it if already joined
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Param		eventId	path	string	true	"Event ID (UUID)"	format(uuid) example(550e8400-e29b-41d4-a716-446655440000)
+// @Router		/events/{eventId}/toggle-join	[post]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) JoinOrLeaveController(ctx *gin.Context) {
 	eventId := ctx.Param("eventId")
 
@@ -140,6 +169,16 @@ func (c *EventController) JoinOrLeaveController(ctx *gin.Context) {
 	})
 }
 
+// Get Upcoming Events
+//
+// @Summary		Get Upcoming Events
+// @Description	Retrieve upcoming events
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Router		/events/upcoming	[get]
+// @Success		200	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) GetUpcomingEvents(ctx *gin.Context) {
 	result, err := c.service.GetUpcomingEvents(ctx)
 	if err != nil {
@@ -160,6 +199,18 @@ func (c *EventController) GetUpcomingEvents(ctx *gin.Context) {
 	})
 }
 
+// Get My Events
+//
+// @Summary		Get My Events
+// @Description	Retrieve events the authenticated user is participating in
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Router		/events/my-events	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) GetMyEvents(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
@@ -192,6 +243,18 @@ func (c *EventController) GetMyEvents(ctx *gin.Context) {
 	})
 }
 
+// Get Saved Events
+//
+// @Summary		Get Saved Events
+// @Description	Retrieve events saved by the authenticated user
+// @Tags		events
+// @Accept		json
+// @Produce		json
+// @Router		/events/saved-events	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (c *EventController) GetSavedEvents(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {

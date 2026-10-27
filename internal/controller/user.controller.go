@@ -61,6 +61,17 @@ func (u *UserController) GetUserProfile(ctx *gin.Context) {
 	})
 }
 
+// Get User Info
+//
+// @Summary		Get User Info
+// @Description	Retrieve the authenticated user's information
+// @Tags		user
+// @Produce		json
+// @Router		/user/info	[get]
+// @Security	BearerToken
+// @Success		200	{object}	dto.Response
+// @Failure		401	{object}	dto.Response
+// @Failure		500	{object}	dto.Response
 func (u *UserController) GetUserInfo(ctx *gin.Context) {
 	token, exist := ctx.Get("token")
 	if !exist {
@@ -100,7 +111,7 @@ func (u *UserController) GetUserInfo(ctx *gin.Context) {
 // @Accept				json
 // @Produce				json
 // @Param					payload	body		dto.UserProfile	true	"User Profile Data"
-// @Router				/user/profile	[patch]
+// @Router				/user/profile/update	[patch]
 // @Security			BearerToken
 // @Success				200		{object}	dto.Response
 // @Failure				401		{object}	dto.Response
@@ -153,7 +164,7 @@ func (u *UserController) ChangeUserProfile(ctx *gin.Context) {
 // @Accept				json
 // @Produce				json
 // @Param					payload	body		dto.ChangePassword	true	"Change Password Data"
-// @Router				/user/password	[patch]
+// @Router				/user/change-password	[patch]
 // @Security			BearerToken
 // @Success				200		{object}	dto.Response
 // @Failure				401		{object}	dto.Response

@@ -16,7 +16,7 @@ import (
 // @version												1.0
 // @description										Documentation of API Eventhub
 
-// @host													localhost:8080
+// @host													localhost:8181
 // @BasePath											/
 
 // @securityDefinitions.apikey		BearerToken

@@ -191,7 +191,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/password": {
+        "/user/change-password": {
             "patch": {
                 "security": [
                     {
@@ -220,6 +220,43 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Retrieve the authenticated user's information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get User Info",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -277,7 +314,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/user/profile/update": {
             "patch": {
                 "security": [
                     {
@@ -339,10 +378,12 @@ const docTemplate = `{
             "properties": {
                 "new_password": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 8,
+                    "example": "NewPass456!"
                 },
                 "old_password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "CurrentPass123!"
                 }
             }
         },
@@ -354,10 +395,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rida@example.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "StrongPass123!"
                 }
             }
         },
@@ -370,24 +413,24 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rida@example.com"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Rida"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 8,
+                    "example": "StrongPass123!"
                 }
             }
         },
         "dto.Response": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
+                "data": {},
                 "message": {
                     "type": "string"
                 },
@@ -400,31 +443,40 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatar_url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://example.com/avatar.png"
                 },
                 "bio": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Community organizer and event enthusiast."
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2026-10-27T10:00:00Z"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "rida@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "location": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Jakarta, Indonesia"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Rida"
                 },
                 "role": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "user"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2026-10-27T10:00:00Z"
                 }
             }
         }

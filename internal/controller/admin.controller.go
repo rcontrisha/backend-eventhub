@@ -31,7 +31,7 @@ func (ac *AdminController) GetDashboardStats(ctx *gin.Context) {
 	ctx.JSON(200, dto.Response{
 		Status:  "success",
 		Message: "Successfully retrieved dashboard stats",
-		Data:    gin.H{
+		Data: gin.H{
 			"data": stats,
 		},
 	})

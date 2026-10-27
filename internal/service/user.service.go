@@ -143,18 +143,18 @@ func (u *UserService) GetUserInfo(ctx context.Context, userId string) (*dto.User
 	}
 
 	response := dto.UserInfo{
-		Id:                result.Id,
-		Email:             result.Email,
-		Name:              result.Name,
-		AvatarUrl:         result.AvatarUrl,
-		Location:          result.Location,
-		Bio:               result.Bio,
-		Role:              result.Role,
+		Id:        result.Id,
+		Email:     result.Email,
+		Name:      result.Name,
+		AvatarUrl: result.AvatarUrl,
+		Location:  result.Location,
+		Bio:       result.Bio,
+		Role:      result.Role,
 		// JoinedEvents:      result.JoinedEvents,
 		// SavedEvents:       result.SavedEvents,
 		// JoinedCommunities: result.JoinedCommunities,
-		CreatedAt:         result.CreatedAt,
-		UpdatedAt:         result.UpdatedAt,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	}
 
 	// str, err := json.Marshal(response)

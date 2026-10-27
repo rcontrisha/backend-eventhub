@@ -217,4 +217,4 @@ func (o *OrganizerService) EditEvent(ctx context.Context, organizerId, eventId s
 	}
 
 	return nil
-}	
+}

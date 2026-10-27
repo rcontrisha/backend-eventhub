@@ -43,15 +43,15 @@ type OrganizerDashboardResponse struct {
 }
 
 type AddEventDataRequest struct {
-	Title       string               `form:"title" binding:"required,min=3,max=150"`
-	Desc        string               `form:"desc" binding:"required,min=10"`
+	Title       string                `form:"title" binding:"required,min=3,max=150"`
+	Desc        string                `form:"desc" binding:"required,min=10"`
 	ImageUrl    *multipart.FileHeader `form:"image_url" binding:"required"`
-	CommunityId *string              `form:"community_id" binding:"omitempty,uuid"`
-	StartTime   time.Time            `form:"start_time" binding:"required"`
-	EndTime     time.Time            `form:"end_time" binding:"required,gtfield=StartTime"`
-	Location    string               `form:"location" binding:"required,max=200"`
-	Capacity    int                  `form:"capacity" binding:"required,min=1"`
-	Speakers    string               `form:"speakers" binding:"omitempty"`
+	CommunityId *string               `form:"community_id" binding:"omitempty,uuid"`
+	StartTime   time.Time             `form:"start_time" binding:"required"`
+	EndTime     time.Time             `form:"end_time" binding:"required,gtfield=StartTime"`
+	Location    string                `form:"location" binding:"required,max=200"`
+	Capacity    int                   `form:"capacity" binding:"required,min=1"`
+	Speakers    string                `form:"speakers" binding:"omitempty"`
 }
 
 type AddEventTagsRequest struct {

@@ -15,18 +15,18 @@ type UserProfile struct {
 }
 
 type UserInfo struct {
-	Id                string    `json:"id"`
-	Email             string    `json:"email"`
-	Name              string    `json:"name"`
-	AvatarUrl         *string   `json:"avatar_url"`
-	Location          *string   `json:"location"`
-	Bio               *string   `json:"bio"`
-	Role              string    `json:"role"`
+	Id        string  `json:"id"`
+	Email     string  `json:"email"`
+	Name      string  `json:"name"`
+	AvatarUrl *string `json:"avatar_url"`
+	Location  *string `json:"location"`
+	Bio       *string `json:"bio"`
+	Role      string  `json:"role"`
 	// JoinedEvents      []string  `json:"joined_events"`
 	// SavedEvents       []string  `json:"saved_events"`
 	// JoinedCommunities []string  `json:"joined_communities"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ChangePassword struct {

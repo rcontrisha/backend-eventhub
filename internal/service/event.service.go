@@ -3,17 +3,21 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/repository"
 )
 
 type EventService struct {
 	repo *repository.EventRepo
+	brk  *broker.Broker
 }
 
-func NewEventService(repo *repository.EventRepo) *EventService {
+func NewEventService(repo *repository.EventRepo, brk *broker.Broker) *EventService {
 	return &EventService{
 		repo: repo,
+		brk:  brk,
 	}
 }
 
@@ -113,13 +117,27 @@ func (c *EventService) JoinOrLeaveEvent(ctx context.Context, eventId string, use
 		if err := c.repo.JoinEvent(ctx, eventId, userId); err != nil {
 			return "", err
 		}
+		c.publishCount(ctx, eventId)
 		return "joined", nil
 	}
 
 	if err := c.repo.LeaveEvent(ctx, eventId, userId); err != nil {
 		return "", err
 	}
+	c.publishCount(ctx, eventId)
 	return "left", nil
+}
+
+func (c *EventService) publishCount(ctx context.Context, eventId string) {
+	// TODO 1: count, err := c.repo.CountParticipants(ctx, eventId)
+	count, err := c.repo.CountParticipants(ctx, eventId)
+	// TODO 2: kalau err -> log.Printf lalu return (jangan return error ke pemanggil)
+	if err != nil {
+		log.Println("[Event Publish] Failed to count event participants: ", err)
+		return
+	}
+	// TODO 3: c.brk.Publish(dto.UpdateAttendee{EventID: eventId, Count: count})
+	c.brk.Publish(dto.UpdateAttendee{EventID: eventId, Count: count})
 }
 
 func (c *EventService) GetUpcomingEvents(ctx context.Context) ([]dto.EventListItemResponse, error) {

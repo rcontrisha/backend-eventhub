@@ -2,22 +2,27 @@ package controller
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/service"
 	"rcontrisha/backend-eventhub/pkg"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type EventController struct {
 	service *service.EventService
+	brk     *broker.Broker
 }
 
-func NewEventController(service *service.EventService) *EventController {
+func NewEventController(service *service.EventService, brk *broker.Broker) *EventController {
 	return &EventController{
 		service: service,
+		brk:     brk,
 	}
 }
 
@@ -284,5 +289,41 @@ func (c *EventController) GetSavedEvents(ctx *gin.Context) {
 		Data: gin.H{
 			"events": result,
 		},
+	})
+}
+
+func (c *EventController) StreamAttendees(ctx *gin.Context) {
+	strIDs := ctx.Query("ids")
+	if strIDs == "" {
+		log.Println("[Event-Stream] Error: Empty Query")
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Status:  "error",
+			Message: "Failed to stream event's attendee",
+			Data:    nil,
+		})
+		return
+	}
+
+	parts := strings.Split(strIDs, ",")
+
+	updates, unsubscribe := c.brk.Subscribe(parts)
+	defer unsubscribe()
+
+	ctx.Header("Content-Type", "text/event-stream")
+	ctx.Header("Cache-Control", "no-cache")
+	ctx.Header("Connection", "keep-alive")
+	ctx.Writer.Flush()
+
+	ctx.Stream(func(w io.Writer) bool {
+		select {
+		case u, ok := <-updates:
+			if !ok {
+				return false
+			}
+			ctx.SSEvent("attendee_count", u)
+			return true
+		case <-ctx.Request.Context().Done():
+			return false
+		}
 	})
 }

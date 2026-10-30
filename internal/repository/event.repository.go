@@ -251,6 +251,17 @@ func (e *EventRepo) LeaveEvent(ctx context.Context, eventId string, userId strin
 	return nil
 }
 
+func (e *EventRepo) CountParticipants(ctx context.Context, eventId string) (int, error) {
+	// TODO: SELECT COUNT(*) FROM event_participants WHERE event_id = $1
+	// pola sama seperti IsJoined: QueryRow(...).Scan(&count)
+	query := `SELECT COUNT(*) FROM event_participants WHERE event_id = $1`
+	var count int
+	if err := e.db.QueryRow(ctx, query, eventId).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (e *EventRepo) UpcomingEvent(ctx context.Context) ([]model.EventListItem, error) {
 	query := `
 		SELECT

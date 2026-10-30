@@ -2,11 +2,17 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/config"
 	"rcontrisha/backend-eventhub/internal/router"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -55,9 +61,34 @@ func main() {
 	log.Println(str)
 	log.Println("Redis is ready")
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	brk := broker.NewBroker()
+	go brk.Run(ctx)
+
 	r := gin.Default()
 
-	router.MainRouter(r, pool, rdb)
+	router.MainRouter(r, pool, rdb, brk)
 
-	r.Run(fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")))
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
+		Handler: r,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Println("Server error: ", err)
+			stop()
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Shutting down...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Println("Shutdown error: ", err)
+	}
 }

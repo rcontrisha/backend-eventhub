@@ -85,5 +85,5 @@ type JoinOrLeaveEventResponse struct {
 
 type UpdateAttendee struct {
 	EventID string `json:"event_id"`
-	Count int `json:"count"`
+	Count   int    `json:"count"`
 }

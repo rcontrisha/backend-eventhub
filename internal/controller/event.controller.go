@@ -10,6 +10,7 @@ import (
 	"rcontrisha/backend-eventhub/internal/service"
 	"rcontrisha/backend-eventhub/pkg"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -312,7 +313,11 @@ func (c *EventController) StreamAttendees(ctx *gin.Context) {
 	ctx.Header("Content-Type", "text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
+	ctx.Header("X-Accel-Buffering", "no")
 	ctx.Writer.Flush()
+
+	ticker := time.NewTicker(15 * time.Second)
+	defer ticker.Stop()
 
 	ctx.Stream(func(w io.Writer) bool {
 		select {
@@ -322,6 +327,11 @@ func (c *EventController) StreamAttendees(ctx *gin.Context) {
 			}
 			ctx.SSEvent("attendee_count", u)
 			return true
+
+		case <-ticker.C:
+			fmt.Fprintf(w, ": ping\n\n")
+			return true
+
 		case <-ctx.Request.Context().Done():
 			return false
 		}

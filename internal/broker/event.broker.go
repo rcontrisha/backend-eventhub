@@ -73,7 +73,7 @@ func (b *Broker) Publish(u dto.UpdateAttendee) {
 	select {
 	case b.publish <- u:
 	default:
-		log.Printf("broker: publish buffer penuh, update event %d dibuang", u.EventID)
+		log.Printf("broker: publish buffer penuh, update event %s dibuang", u.EventID)
 	}
 }
 

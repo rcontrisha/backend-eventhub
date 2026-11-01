@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/config"
+	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/router"
 	"syscall"
 	"time"
@@ -64,12 +65,12 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	brk := broker.NewBroker()
-	go brk.Run(ctx)
+	attendeeBroker := broker.NewBroker[dto.UpdateAttendee]()
+	go attendeeBroker.Run(ctx)
 
 	r := gin.Default()
 
-	router.MainRouter(r, pool, rdb, brk)
+	router.MainRouter(r, pool, rdb, attendeeBroker)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),

@@ -11,10 +11,10 @@ import (
 
 type EventService struct {
 	repo *repository.EventRepo
-	brk  *broker.Broker
+	brk  *broker.Broker[dto.UpdateAttendee]
 }
 
-func NewEventService(repo *repository.EventRepo, brk *broker.Broker) *EventService {
+func NewEventService(repo *repository.EventRepo, brk *broker.Broker[dto.UpdateAttendee]) *EventService {
 	return &EventService{
 		repo: repo,
 		brk:  brk,
@@ -137,7 +137,7 @@ func (c *EventService) publishCount(ctx context.Context, eventId string) {
 		return
 	}
 	// TODO 3: c.brk.Publish(dto.UpdateAttendee{EventID: eventId, Count: count})
-	c.brk.Publish(dto.UpdateAttendee{EventID: eventId, Count: count})
+	c.brk.Publish(eventId, dto.UpdateAttendee{EventID: eventId, Count: count})
 }
 
 func (c *EventService) GetUpcomingEvents(ctx context.Context) ([]dto.EventListItemResponse, error) {

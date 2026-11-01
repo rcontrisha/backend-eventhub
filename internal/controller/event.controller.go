@@ -17,10 +17,10 @@ import (
 
 type EventController struct {
 	service *service.EventService
-	brk     *broker.Broker
+	brk     *broker.Broker[dto.UpdateAttendee]
 }
 
-func NewEventController(service *service.EventService, brk *broker.Broker) *EventController {
+func NewEventController(service *service.EventService, brk *broker.Broker[dto.UpdateAttendee]) *EventController {
 	return &EventController{
 		service: service,
 		brk:     brk,
@@ -329,7 +329,9 @@ func (c *EventController) StreamAttendees(ctx *gin.Context) {
 			return true
 
 		case <-ticker.C:
-			fmt.Fprintf(w, ": ping\n\n")
+			if _, err := fmt.Fprint(w, ": ping\n\n"); err != nil {
+				return false
+			}
 			return true
 
 		case <-ctx.Request.Context().Done():

@@ -4,6 +4,7 @@ import (
 	"path"
 	_ "rcontrisha/backend-eventhub/docs"
 	"rcontrisha/backend-eventhub/internal/broker"
+	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -13,14 +14,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func MainRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client, brk *broker.Broker) {
+func MainRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client, attendeeBroker *broker.Broker[dto.UpdateAttendee]) {
 	router.Use(middleware.Cors)
 
 	router.GET("docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Static("img", path.Join("public", "img"))
 
 	AuthRouter(router, db, rdb)
-	EventRouter(router, db, rdb, brk)
+	EventRouter(router, db, rdb, attendeeBroker)
 	CommunityRouter(router, db, rdb)
 	UserRouter(router, db, rdb)
 	OrganizerRouter(router, db, rdb)

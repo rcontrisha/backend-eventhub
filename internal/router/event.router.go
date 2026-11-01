@@ -3,6 +3,7 @@ package router
 import (
 	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/controller"
+	"rcontrisha/backend-eventhub/internal/dto"
 	"rcontrisha/backend-eventhub/internal/middleware"
 	"rcontrisha/backend-eventhub/internal/repository"
 	"rcontrisha/backend-eventhub/internal/service"
@@ -12,7 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func EventRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client, brk *broker.Broker) {
+func EventRouter(r *gin.Engine, db *pgxpool.Pool, rdb *redis.Client, brk *broker.Broker[dto.UpdateAttendee]) {
 	eventRouter := r.Group("/events")
 
 	repo := repository.NewEventRepo(db)

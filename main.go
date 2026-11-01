@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"rcontrisha/backend-eventhub/docs"
 	"rcontrisha/backend-eventhub/internal/broker"
 	"rcontrisha/backend-eventhub/internal/config"
 	"rcontrisha/backend-eventhub/internal/dto"
@@ -23,7 +24,7 @@ import (
 // @version												1.0
 // @description										Documentation of API Eventhub
 
-// @host													localhost:8181
+// @host
 // @BasePath											/
 
 // @securityDefinitions.apikey		BearerToken
@@ -67,6 +68,8 @@ func main() {
 
 	attendeeBroker := broker.NewBroker[dto.UpdateAttendee]()
 	go attendeeBroker.Run(ctx)
+
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 
 	r := gin.Default()
 

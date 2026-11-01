@@ -69,14 +69,14 @@ func main() {
 	attendeeBroker := broker.NewBroker[dto.UpdateAttendee]()
 	go attendeeBroker.Run(ctx)
 
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%s", os.Getenv("PORT"))
 
 	r := gin.Default()
 
 	router.MainRouter(r, pool, rdb, attendeeBroker)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("localhost:%s", os.Getenv("PORT")),
+		Addr:    fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
 		Handler: r,
 	}
 

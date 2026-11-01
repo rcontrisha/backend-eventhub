@@ -76,7 +76,7 @@ func main() {
 	router.MainRouter(r, pool, rdb, attendeeBroker)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
+		Addr:    fmt.Sprintf("localhost:%s", os.Getenv("PORT")),
 		Handler: r,
 	}
 
